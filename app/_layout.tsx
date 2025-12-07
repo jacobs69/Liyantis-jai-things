@@ -23,9 +23,14 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="signup" options={{ headerShown: false }} />
         <Stack.Screen name="home" options={{ headerShown: false }} />
+        <Stack.Screen name="home2" options={{ headerShown: false }} />
         <Stack.Screen name="Profile" options={{ headerShown: false }} />
         <Stack.Screen name="dashboard" options={{ headerShown: false }} />
         <Stack.Screen name="timeline" options={{ headerShown: false }} />
+        <Stack.Screen name="form1" options={{ headerShown: false }} />
+        <Stack.Screen name="form2" options={{ headerShown: false }} />
+        <Stack.Screen name="form3" options={{ headerShown: false }} />
+        <Stack.Screen name="form4" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="light" />
     </>

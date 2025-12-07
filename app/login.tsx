@@ -4,16 +4,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function Login() {
@@ -85,7 +85,7 @@ export default function Login() {
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={() => {
-                router.push("/home");
+                router.push("/dashboard");
               }}
             >
               <Text style={styles.primaryText}>Login</Text>

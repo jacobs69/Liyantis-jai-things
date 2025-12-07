@@ -6,13 +6,14 @@ import {
   Dimensions,
   Image,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function BoardingSlideshow() {
   const router = useRouter();
@@ -23,31 +24,32 @@ export default function BoardingSlideshow() {
     {
       title: "Investor\nMath\nDone.",
       dotIndex: 0,
-      image: require("../assets/images/Img1.png"),
+      image: require("../assets/images/Imgg1.png"),
     },
     {
       title: "Save\nBrand\nShare",
       dotIndex: 1,
-      image: require("../assets/images/Img2.png"),
+      image: require("../assets/images/Imgg2.png"),
     },
     {
       title: "We Call on\nYour\nBehalf",
       dotIndex: 2,
-      image: require("../assets/images/Img3.png"),
+      image: require("../assets/images/Imgg3.png"),
     },
   ];
 
+  // Auto-scroll logic
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % 3;
+        const nextIndex = (prevIndex + 1) % slides.length;
         scrollViewRef.current?.scrollTo({
           x: nextIndex * width,
           animated: true,
         });
         return nextIndex;
       });
-    }, 3000); // Auto-advance every 3 seconds
+    }, 4000); 
 
     return () => clearInterval(interval);
   }, []);
@@ -55,84 +57,99 @@ export default function BoardingSlideshow() {
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const index = Math.round(scrollPosition / width);
-    setCurrentIndex(index);
+    if (index !== currentIndex) {
+      setCurrentIndex(index);
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* CAROUSEL - TOP PART */}
+      <StatusBar barStyle="light-content" />
+      
+      {/* FULL SCREEN CAROUSEL */}
       <ScrollView
         ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
+        onMomentumScrollEnd={handleScroll}
         scrollEventThrottle={16}
-        style={styles.carouselContainer}
+        bounces={false}
+        decelerationRate="fast"
+        style={styles.carousel}
       >
         {slides.map((slide, index) => (
-          <View key={index} style={[styles.slide, { width }]}>
-            {/* TOP IMAGE */}
+          <View key={index} style={{ width, height: height }}>
+            {/* BACKGROUND IMAGE */}
             <Image
               source={slide.image}
-              style={styles.topImage}
+              style={styles.backgroundImage}
             />
-
-            {/* CURVED OVERLAY */}
-            <View style={styles.curveContainer} />
-
-            {/* TITLE */}
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>{slide.title}</Text>
-            </View>
+            
+            {/* GRADIENT OVERLAY FOR TEXT READABILITY */}
+            <LinearGradient
+                colors={['transparent', '#14141C']}
+                style={styles.imageGradient}
+                locations={[0.4, 1]}
+            />
           </View>
         ))}
       </ScrollView>
 
-      {/* FIXED BOTTOM CONTENT */}
-      <LinearGradient
-        colors={["#0E0F1A", "#1A1B2D"]}
-        style={styles.bottomContainer}
-      >
-        {/* Dots */}
-        <View style={styles.dotsContainer}>
-          {[0, 1, 2].map((dotIndex) => (
-            <View
-              key={dotIndex}
-              style={[
-                styles.dot,
-                { opacity: currentIndex === dotIndex ? 1 : 0.4 },
-              ]}
-            />
-          ))}
+      {/* CONTENT LAYER (Text, Dots, Buttons) */}
+      <View style={styles.contentOverlay}>
+        
+        {/* DYNAMIC TITLE */}
+        <View style={styles.textContainer}>
+            <Text style={styles.title}>{slides[currentIndex].title}</Text>
+            
+            {/* DOTS INDICATOR */}
+            <View style={styles.dotsContainer}>
+            {slides.map((_, index) => (
+                <View
+                key={index}
+                style={[
+                    styles.dot,
+                    { 
+                        backgroundColor: currentIndex === index ? "#fff" : "#4A4B55",
+                        opacity: currentIndex === index ? 1 : 1
+                    },
+                ]}
+                />
+            ))}
+            </View>
         </View>
 
-        {/* EMAIL BUTTON */}
-        <TouchableOpacity
-          style={styles.emailButton}
-          onPress={() => router.push("/email")}
-        >
-          <Feather name="mail" size={20} color="#000" />
-          <Text style={styles.emailText}>Continue with Email</Text>
-        </TouchableOpacity>
+        {/* BOTTOM ACTION AREA */}
+        <View style={styles.actionContainer}>
+            {/* PRIMARY BUTTON */}
+            <TouchableOpacity
+                style={styles.primaryButton}
+                activeOpacity={0.8}
+                onPress={() => router.push("/email")} // Adjust route as needed
+            >
+                <Feather name="mail" size={20} color="#000" style={{marginRight: 10}}/>
+                <Text style={styles.primaryButtonText}>Continue with Email</Text>
+            </TouchableOpacity>
 
-        {/* SOCIAL BUTTONS */}
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialButton}>
-            <AntDesign name="google" size={20} color="#FF968E" />
-          </TouchableOpacity>
+            {/* SOCIAL BUTTONS */}
+            <View style={styles.socialRow}>
+                <TouchableOpacity style={styles.socialButton}>
+                    <AntDesign name="google" size={24} color="#FF968E" /> 
+                </TouchableOpacity>
 
-          <TouchableOpacity style={styles.socialButton}>
-            <FontAwesome name="apple" size={22} color="#fff" />
-          </TouchableOpacity>
+                <TouchableOpacity style={styles.socialButton}>
+                    <FontAwesome name="apple" size={26} color="#fff" />
+                </TouchableOpacity>
+            </View>
+
+            {/* FOOTER TEXT */}
+            <Text style={styles.termsText}>
+                By continuing you agree Liyantis's Terms of{"\n"}
+                Services & Privacy Policy
+            </Text>
         </View>
-
-        {/* TERMS TEXT */}
-        <Text style={styles.terms}>
-          By continuing you agree Liyantis's Terms of{"\n"}Services &
-          Privacy Policy
-        </Text>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -140,84 +157,104 @@ export default function BoardingSlideshow() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0E0F1A",
+    backgroundColor: "#14141C", // Dark background matching the screenshot
   },
-  carouselContainer: {
+  carousel: {
     flex: 1,
   },
-  slide: {
-    height: "100%",
-  },
-  topImage: {
-    width: "100%",
-    height: "58%",
+  backgroundImage: {
+    width: width,
+    height: height * 0.65, // Image takes up top ~65%
     resizeMode: "cover",
   },
-  curveContainer: {
-    display: "none",
+  imageGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.65,
   },
-  titleContainer: {
-    position: "absolute",
+
+
+  contentOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     bottom: 0,
-    left: 32,
+    justifyContent: 'flex-end',
+    zIndex: 2, // Ensures content sits on top of the diagonal overlay
+    paddingHorizontal: 30,
+    paddingBottom: 40,
+  },
+  textContainer: {
+    marginBottom: 40,
   },
   title: {
     color: "#fff",
-    fontSize: 34,
-    fontWeight: "600",
-    lineHeight: 40,
+    fontSize: 42,
+    fontFamily: "Kaledo105",
+    lineHeight: 48,
     marginBottom: 20,
-  },
-  bottomContainer: {
-    width: "100%",
-    paddingHorizontal: 32,
-    paddingBottom: 40,
+    letterSpacing: -0.5,
   },
   dotsContainer: {
     flexDirection: "row",
     gap: 8,
-    marginBottom: 30,
   },
   dot: {
     width: 8,
     height: 8,
-    backgroundColor: "#fff",
     borderRadius: 4,
   },
-  emailButton: {
+  actionContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  primaryButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#EEFB73",
-    paddingVertical: 14,
-    borderRadius: 30,
     justifyContent: "center",
-    marginBottom: 25,
+    backgroundColor: "#EAF97C", // The specific neon yellow color
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 30,
+    marginBottom: 15,
+    shadowColor: "#EAF97C",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
-  emailText: {
+  primaryButtonText: {
+    color: "#000",
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 10,
-    color: "#000",
   },
+  
   socialRow: {
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
     gap: 20,
-    marginBottom: 25,
-  },
+    marginBottom: 30,
+},
+
+
   socialButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 130,
+    height: 55,
+    borderRadius: 35,        // pill shape
     borderWidth: 1,
-    borderColor: "#444",
+    borderColor: "#3A3B48",
+    backgroundColor: "transparent", // same as screenshot
     justifyContent: "center",
     alignItems: "center",
-  },
-  terms: {
-    fontSize: 11,
-    color: "#888",
+},
+
+  termsText: {
+    color: "#6B6C78",
+    fontSize: 12,
     textAlign: "center",
-    lineHeight: 15,
+    lineHeight: 18,
   },
 });

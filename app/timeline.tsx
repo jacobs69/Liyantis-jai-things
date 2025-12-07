@@ -19,7 +19,7 @@ const data = [
 export default function TimelineScreen() {
   const router = useRouter();
 
-  const renderIcon = (item) => {
+  const renderIcon = (item: any) => {
     if (item.type === 'key') {
       return (
          <View style={styles.iconContainer}>

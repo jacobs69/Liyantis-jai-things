@@ -1,19 +1,216 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
   Dimensions,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  PanResponder,
   Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View
 } from "react-native";
 
-const { width } = Dimensions.get("window");
+// --- Carousel Constants & Data ---
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CARD_PADDING = 16;
+const CONTAINER_WIDTH = SCREEN_WIDTH - (CARD_PADDING * 2); 
+
+const COLORS = {
+  moderateBg: '#F2FF5B', // Bright Neon Yellow
+  conservativeBg: '#FCFCE5', // Light Cream
+  optimisticBg: '#A8C600', // Olive Green
+  highlight: '#DFFF4F', // Pagination active dot
+  inactiveDot: '#3A3A3C',
+  textGrey: '#8E8E93',
+  textWhite: '#FFFFFF',
+  textDark: '#1A1A1A',
+};
+
+// --- Mock Data for Payment Timeline (12 Months/Points) ---
+const TIMELINE_DATA = [
+  { date: 'Jan 26', percent: '5', value: '61,250' },
+  { date: 'Feb 26', percent: '5', value: '61,250' },
+  { date: 'Mar 26', percent: '10', value: '122,500' }, // Screenshot point
+  { date: 'Apr 26', percent: '10', value: '122,500' },
+  { date: 'May 26', percent: '15', value: '183,750' },
+  { date: 'Jun 26', percent: '20', value: '245,000' },
+  { date: 'Jul 26', percent: '25', value: '306,250' },
+  { date: 'Aug 26', percent: '30', value: '367,500' },
+  { date: 'Sep 26', percent: '35', value: '428,750' },
+  { date: 'Oct 26', percent: '40', value: '490,000' },
+  { date: 'Nov 26', percent: '45', value: '551,250' },
+  { date: 'Jan 27', percent: '50', value: '612,500' },
+];
+
+type StrategyData = {
+  id: string;
+  type: 'STP' | 'MTP' | 'LTP';
+  title: string;
+  accessoryType: 'dropdown' | 'counter';
+  moderate: { percent: string; val: string };
+  conservative: { percent: string; val: string };
+  optimistic: { percent: string; val: string };
+  description: string;
+  highlightText: string;
+};
+
+const STRATEGIES: StrategyData[] = [
+  {
+    id: '1',
+    type: 'STP',
+    title: 'STP — Flipping',
+    accessoryType: 'dropdown',
+    moderate: { percent: '25.46%', val: 'AED 137.24k' },
+    conservative: { percent: '7.87%', val: 'AED 42.42k' },
+    optimistic: { percent: '34.46%', val: 'AED 185.75k' },
+    description: '** The project will generate an estimated ROE of ~25.46% based on ',
+    highlightText: 'AED539k capital invested by March 2026.',
+  },
+  {
+    id: '2',
+    type: 'MTP',
+    title: 'MTP — Holding',
+    accessoryType: 'dropdown',
+    moderate: { percent: '25.46%', val: 'AED 137.24k' },
+    conservative: { percent: '7.87%', val: 'AED 42.42k' },
+    optimistic: { percent: '34.46%', val: 'AED 185.75k' },
+    description: '** The project will generate an estimated ROE of ~25.46% based on ',
+    highlightText: 'AED539k capital invested by March 2026.',
+  },
+  {
+    id: '3',
+    type: 'LTP',
+    title: 'LTP — Compounding',
+    accessoryType: 'counter',
+    moderate: { percent: '117.72%', val: 'AED 137.24k' },
+    conservative: { percent: '49.18%', val: 'AED 42.42k' },
+    optimistic: { percent: '160.32%', val: 'AED 185.75k' },
+    description: '** The project will generate an estimated ROE of ~25.46% based on ',
+    highlightText: 'AED1.274mn (AED1.225 + 4% DLD) capital invested by Jan 2027.',
+  },
+];
 
 export default function DashboardScreen() {
+  // --- Carousel State & Logic ---
+  const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const index = event.nativeEvent.contentOffset.x / slideSize;
+    const roundIndex = Math.round(index);
+    if (roundIndex !== activeIndex) {
+      setActiveIndex(roundIndex);
+    }
+  };
+
+  // --- Payment Timeline Logic (New) ---
+  const [timelineIndex, setTimelineIndex] = useState(2); // Start at index 2 (Mar 26)
+  const [sliderWidth, setSliderWidth] = useState(0);
+  
+  // Logic to calculate index based on touch position
+  const updateTimelineIndex = (xPos: number) => {
+    if (sliderWidth === 0) return;
+    const step = sliderWidth / (TIMELINE_DATA.length - 1);
+    const newIndex = Math.round(xPos / step);
+    const clampedIndex = Math.max(0, Math.min(newIndex, TIMELINE_DATA.length - 1));
+    setTimelineIndex(clampedIndex);
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderGrant: (evt) => {
+        updateTimelineIndex(evt.nativeEvent.locationX);
+      },
+      onPanResponderMove: (evt) => {
+        updateTimelineIndex(evt.nativeEvent.locationX);
+      },
+    })
+  ).current;
+
+  const currentTimelineItem = TIMELINE_DATA[timelineIndex];
+
+  // Calculate dynamic left position for the red triangle
+  const getTrianglePosition = () => {
+    if (TIMELINE_DATA.length <= 1) return '0%';
+    const percent = (timelineIndex / (TIMELINE_DATA.length - 1)) * 100;
+    return `${percent}%`;
+  };
+
+  // --- Render Item for Carousel ---
+  const renderItem = ({ item }: { item: StrategyData }) => {
+    return (
+      <View style={styles.slideContainer}>
+        {/* Header Row */}
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.smallLabel}>Exit Strategies</Text>
+            <Text style={styles.mainTitle}>{item.title}</Text>
+          </View>
+          {/* Top Right Controls */}
+          <View style={styles.topRightContainer}>
+            {item.accessoryType === 'dropdown' ? (
+              <>
+                <View style={styles.percentBadge}>
+                  <Text style={styles.percentSymbol}>%</Text>
+                  <Ionicons name="chevron-down" size={12} color="#000" />
+                </View>
+                <TouchableOpacity style={styles.expandIcon}>
+                  <MaterialCommunityIcons name="arrow-expand-all" size={18} color="#AAA" />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <View style={styles.counterContainer}>
+                <TouchableOpacity style={styles.counterBtn}>
+                  <Text style={styles.counterBtnText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.counterValue}>5</Text>
+                <TouchableOpacity style={styles.counterBtn}>
+                  <Text style={styles.counterBtnText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Cards Row */}
+        <View style={styles.cardsRow}>
+          <View style={[styles.strategyCardItem, { backgroundColor: COLORS.moderateBg, borderColor: '#FFF', borderWidth: 1 }]}>
+            <Text style={styles.cardLabel}>Moderate</Text>
+            <Text style={styles.cardPercent}>{item.moderate.percent}</Text>
+            <Text style={styles.cardValue}>{item.moderate.val}</Text>
+          </View>
+          <View style={[styles.strategyCardItem, { backgroundColor: COLORS.conservativeBg }]}>
+            <Text style={styles.cardLabel}>Conservative</Text>
+            <Text style={styles.cardPercent}>{item.conservative.percent}</Text>
+            <Text style={styles.cardValue}>{item.conservative.val}</Text>
+          </View>
+          <View style={[styles.strategyCardItem, { backgroundColor: COLORS.optimisticBg }]}>
+            <Text style={styles.cardLabel}>Optimistic</Text>
+            <Text style={styles.cardPercent}>{item.optimistic.percent}</Text>
+            <Text style={styles.cardValue}>{item.optimistic.val}</Text>
+          </View>
+        </View>
+
+        {/* Footer Text */}
+        <Text style={styles.footerText}>
+          {item.description}
+          <Text style={styles.footerTextBold}>{item.highlightText}</Text>
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.mainContainer}>
       <SafeAreaView style={styles.safeArea}>
@@ -35,22 +232,16 @@ export default function DashboardScreen() {
           
           {/* Top Grid Area */}
           <View style={styles.gridContainer}>
-            {/* Row 1 */}
             <View style={styles.gridRow}>
-              {/* Rating Circle */}
               <View style={styles.ratingBox}>
                 <View style={styles.ratingCircle}>
                   <Text style={styles.ratingNumber}>7.5</Text>
                 </View>
               </View>
-
-              {/* 1 BR Box */}
               <View style={styles.roomBox}>
                 <Text style={styles.roomTextLarge}>1</Text>
                 <Text style={styles.roomTextSmall}>BR</Text>
               </View>
-
-              {/* Price Box */}
               <View style={styles.priceBox}>
                 <Text style={styles.labelTiny}>OFF PLAN</Text>
                 <View style={styles.priceRow}>
@@ -61,9 +252,7 @@ export default function DashboardScreen() {
               </View>
             </View>
 
-            {/* Row 2 */}
             <View style={styles.gridRow}>
-              {/* APT Box with Pill */}
               <View style={styles.aptBox}>
                 <Text style={styles.labelTiny}>APT</Text>
                 <View style={styles.aptRow}>
@@ -74,20 +263,14 @@ export default function DashboardScreen() {
                   <Text style={styles.statValueLarge}>776</Text>
                 </View>
               </View>
-
-              {/* SC Box */}
               <View style={styles.smallStatBox}>
                 <Text style={styles.statLabelTop}>SC/ft²</Text>
                 <Text style={styles.statValueMedium}>11</Text>
               </View>
-
-              {/* Pr Box */}
               <View style={styles.smallStatBox}>
                 <Text style={styles.statLabelTop}>Pr/ft²</Text>
                 <Text style={styles.statValueMedium}>1,578</Text>
               </View>
-
-              {/* DLD Box */}
               <View style={styles.smallStatBox}>
                 <Text style={styles.statLabelTop}>DLD</Text>
                 <Text style={styles.statValueMedium}>49</Text>
@@ -96,10 +279,9 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          {/* 70/30 Payment Plan Card */}
+          {/* 70/30 Payment Plan Card (Modified for Interaction) */}
           <View style={styles.paymentCard}>
             
-            {/* Card Header */}
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitle}>70/30</Text>
               <Pressable onPress={() => router.push("/timeline")}>
@@ -107,32 +289,42 @@ export default function DashboardScreen() {
               </Pressable>
             </View>
 
-            {/* Big Percentage Center */}
+            {/* Dynamic Percent Center */}
             <View style={styles.centerPercent}>
-              <Text style={styles.bigPercent}>10</Text>
+              <Text style={styles.bigPercent}>{currentTimelineItem.percent}</Text>
               <Text style={styles.percentSymbol}>%</Text>
             </View>
             
+            {/* Dynamic Date & Value */}
             <View style={styles.dateLabelRow}>
-               <Text style={styles.dateLabelLeft}>Mar 26</Text>
-               <Text style={styles.aedLabelCenter}>AED <Text style={{color:'#fff', fontWeight:'700'}}>122,500</Text></Text>
+               <Text style={styles.dateLabelLeft}>{currentTimelineItem.date}</Text>
+               <Text style={styles.aedLabelCenter}>
+                 AED <Text style={{color:'#fff', fontWeight:'700'}}>{currentTimelineItem.value}</Text>
+               </Text>
             </View>
 
-            {/* Timeline */}
-            <View style={styles.timelineContainer}>
-              {/* Red Indicator */}
-              <View style={styles.redTriangleContainer}>
-                <Text style={styles.redTriangle}>▼</Text>
-              </View>
+            {/* Interactive Timeline */}
+            <View 
+              style={styles.timelineContainer}
+              onLayout={(e) => setSliderWidth(e.nativeEvent.layout.width)}
+              {...panResponder.panHandlers} // Bind gestures
+            >
+              {/* Dynamic Red Indicator */}
+              {sliderWidth > 0 && (
+                <View style={[styles.redTriangleContainer, { left: Number(getTrianglePosition()) }]}>
+                  <Text style={styles.redTriangle}>▼</Text>
+                </View>
+              )}
               
               <View style={styles.timelineLine} />
               <View style={styles.dotsRow}>
-                {new Array(12).fill(0).map((_, i) => (
+                {TIMELINE_DATA.map((_, i) => (
                    <View 
                       key={i} 
                       style={[
                         styles.dot, 
-                        i === 4 && styles.dotActive // Make the 5th dot yellow
+                        i === timelineIndex && styles.dotActive, // Active state
+                        i < timelineIndex && styles.dotFilled // Optional: filled previous dots
                       ]} 
                    />
                 ))}
@@ -145,77 +337,42 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          {/* Exit Strategies Section */}
-          <View style={styles.sectionHeaderRow}>
-            <View>
-              <Text style={styles.sectionTitle}>Exit Strategies</Text>
-              <Text style={styles.sectionSub}>STP — Flipping</Text>
-            </View>
-            <View style={styles.headerControls}>
-               <View style={styles.smallPill}>
-                  <Text style={styles.pillText}>%</Text>
-                  <Feather name="chevron-down" size={12} color="#000" />
-               </View>
-               <Feather name="maximize-2" size={14} color="#aaa" style={{marginLeft: 10}}/>
-            </View>
+          {/* --- EXIT STRATEGIES CAROUSEL --- */}
+          <View style={{ marginTop: 24 }}>
+             <FlatList
+                ref={flatListRef}
+                data={STRATEGIES}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={onScroll}
+                scrollEventThrottle={16}
+             />
+
+             {/* Pagination Dots */}
+             <View style={styles.dotsContainer}>
+               {STRATEGIES.map((_, index) => {
+                 const isActive = index === activeIndex;
+                 return (
+                   <View
+                     key={index}
+                     style={[
+                       styles.paginationDot,
+                       isActive ? styles.paginationDotActive : styles.paginationDotInactive
+                     ]}
+                   />
+                 );
+               })}
+             </View>
           </View>
-
-          {/* 3 Colored Cards */}
-          <View style={styles.strategyRow}>
-            {/* Moderate (Yellow) */}
-            <View style={[styles.strategyCard, { backgroundColor: '#F1FC7E' }]}>
-              <Text style={styles.stratHeaderDark}>Moderate</Text>
-              <View>
-                <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                  <Text style={styles.stratPercentDark}>25.46</Text>
-                  <Text style={[styles.stratSymbolDark, {fontSize: 12, marginBottom:4}]}>%</Text>
-                </View>
-                <Text style={styles.stratValueDark}>AED 137.24k</Text>
-              </View>
-            </View>
-
-            {/* Conservative (Beige) */}
-            <View style={[styles.strategyCard, { backgroundColor: '#FFFFE0' }]}>
-              <Text style={styles.stratHeaderDark}>Conservative</Text>
-              <View>
-                <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                  <Text style={styles.stratPercentDark}>7.87</Text>
-                  <Text style={[styles.stratSymbolDark, {fontSize: 12, marginBottom:4}]}>%</Text>
-                </View>
-                <Text style={styles.stratValueDark}>AED 42.42k</Text>
-              </View>
-            </View>
-
-            {/* Optimistic (Lime) */}
-            <View style={[styles.strategyCard, { backgroundColor: '#C0D926' }]}>
-              <Text style={styles.stratHeaderDark}>Optimistic</Text>
-              <View>
-                <View style={{flexDirection:'row', alignItems:'flex-end'}}>
-                  <Text style={styles.stratPercentDark}>34.46</Text>
-                  <Text style={[styles.stratSymbolDark, {fontSize: 12, marginBottom:4}]}>%</Text>
-                </View>
-                <Text style={styles.stratValueDark}>AED 185.75k</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Footer Note */}
-          <Text style={styles.footerNote}>
-            ** The project will generate an estimated ROE of ~25.46% based on <Text style={{fontWeight:'700', color:'#fff'}}>AED539k</Text> capital invested by March 2026.
-          </Text>
-
-           {/* Pagination Dots */}
-           <View style={styles.pagination}>
-              <View style={styles.pageDotActive} />
-              <View style={styles.pageDot} />
-              <View style={styles.pageDot} />
-           </View>
 
            <View style={{height: 100}} /> 
         </ScrollView>
       </SafeAreaView>
 
-      {/* Bottom Navigation Bar (Fixed) */}
+      {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
          <Feather name="home" size={24} color="#ccc" />
          <Feather name="file-text" size={24} color="#ccc" />
@@ -374,7 +531,7 @@ const styles = StyleSheet.create({
   redTriangleContainer: { 
     position: 'absolute', 
     top: -12, 
-    left: '36.5%', 
+    marginLeft: -6, // Half of triangle size to center
     zIndex: 10,
     alignItems: 'center'
   },
@@ -384,29 +541,10 @@ const styles = StyleSheet.create({
   dotsRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
   dot: { width: 12, height: 12, borderRadius: 6, backgroundColor: "#444", borderWidth: 2, borderColor: '#22252B' },
   dotActive: { backgroundColor: "#DFFF4F", borderColor: '#22252B', width: 14, height: 14, borderRadius: 7 },
-  
+  dotFilled: { backgroundColor: "#DFFF4F", borderColor: '#22252B'}, // Optional: previous dots
+
   timelineLabels: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
   timeLabel: { color: "#666", fontSize: 11 },
-
-  // Exit Strategies
-  sectionHeaderRow: { flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop: 24, marginBottom: 12},
-  sectionTitle: {color:'#fff', fontWeight:'700', fontSize: 15},
-  sectionSub: {color:'#777', fontSize: 12},
-  headerControls: {flexDirection:'row', alignItems:'center'},
-  smallPill: {backgroundColor:'#DFFF4F', flexDirection:'row', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, alignItems:'center', gap: 4},
-
-  strategyRow: { flexDirection: 'row', gap: 8 },
-  strategyCard: { flex: 1, borderRadius: 16, padding: 12, height: 120, justifyContent: 'space-between' },
-  stratHeaderDark: { color: '#000', fontSize: 11, fontWeight: '600'},
-  stratPercentDark: { color: '#000', fontSize: 22, fontWeight: '700'},
-  stratSymbolDark: { color: '#000', fontWeight: '700'},
-  stratValueDark: { color: '#444', fontSize: 10, fontWeight: '500'},
-
-  footerNote: { color: '#666', fontSize: 11, marginTop: 16, lineHeight: 16},
-
-  pagination: {flexDirection:'row', justifyContent:'center', marginTop: 20, gap: 6},
-  pageDotActive: {width: 6, height: 6, borderRadius: 3, backgroundColor: '#DFFF4F'},
-  pageDot: {width: 6, height: 6, borderRadius: 3, backgroundColor: '#444', borderWidth: 1, borderColor: '#666'},
 
   // Bottom Nav
   bottomNav: {
@@ -420,9 +558,139 @@ const styles = StyleSheet.create({
      width: 50, height: 50, borderRadius: 25, backgroundColor: '#DFFF4F',
      justifyContent:'center', alignItems:'center', marginBottom: 10
   },
-  avatarWrap: {
-     width: 28, height: 28, borderRadius: 14, overflow:'hidden', backgroundColor:'#333'
-  },
-  avatar: { width: '100%', height: '100%'}
 
+  // ==========================================
+  // CAROUSEL SPECIFIC STYLES
+  // ==========================================
+  slideContainer: {
+    width: CONTAINER_WIDTH, 
+    paddingRight: 4, 
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    paddingHorizontal: 0, 
+  },
+  smallLabel: {
+    color: COLORS.textGrey,
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  mainTitle: {
+    color: COLORS.textWhite,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  topRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  percentBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.moderateBg,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 4,
+  },
+  expandIcon: {
+    padding: 2,
+  },
+  counterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#111', 
+    borderRadius: 8,
+    padding: 2,
+  },
+  counterBtn: {
+    backgroundColor: COLORS.moderateBg,
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  counterBtnText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  counterValue: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '600',
+    marginHorizontal: 10,
+  },
+  cardsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 16,
+  },
+  strategyCardItem: {
+    flex: 1, 
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 110,
+  },
+  cardLabel: {
+    color: COLORS.textDark,
+    fontSize: 10,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  cardPercent: {
+    color: COLORS.textDark,
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  cardValue: {
+    color: COLORS.textDark,
+    fontSize: 10,
+    opacity: 0.7,
+  },
+  footerText: {
+    color: COLORS.textGrey,
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'left',
+    marginBottom: 20,
+  },
+  footerTextBold: {
+    fontWeight: '700',
+    color: '#AAA',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10
+  },
+  paginationDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  paginationDotActive: {
+    backgroundColor: COLORS.highlight,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginTop: -1, 
+  },
+  paginationDotInactive: {
+    backgroundColor: COLORS.inactiveDot,
+    borderWidth: 1,
+    borderColor: '#000',
+  },
 });

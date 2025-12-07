@@ -2,11 +2,11 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const ALL_PROPERTIES = [
@@ -128,7 +128,7 @@ export default function HomeScreen() {
           <Feather name="file-text" size={23} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.centerButton}>
+        <TouchableOpacity style={styles.centerButton} onPress={() => router.push("/form1")}>
           <Text style={styles.plus}>+</Text>
         </TouchableOpacity>
 
