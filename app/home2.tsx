@@ -1,69 +1,32 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View
+  View,
+  Image
 } from 'react-native';
 
 const COLORS = {
-  background: '#0D0D0D',
-  primary: '#EBFF3D',
+  background: '#121214', // Slightly softer dark background
+  primary: '#DFFF4F',    // The specific Lime/Yellow from the screenshot
   textWhite: '#FFFFFF',
   textGrey: '#B3B3B3',
-  cardBorder: '#1A1A1A',
-  tabInactive: '#2A2A2C',
+  searchBg: '#1C1C1E',
+  cardText: '#1A1A1A',
 };
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('Recent');
-
-  const SegmentedControl = () => (
-    <View style={styles.segmentWrapper}>
-      <TouchableOpacity
-        style={[
-          styles.segmentButton,
-          activeTab === 'Recent' && styles.segmentActive,
-        ]}
-        onPress={() => setActiveTab('Recent')}
-      >
-        <Text
-          style={[
-            styles.segmentText,
-            activeTab === 'Recent' && styles.segmentTextActive,
-          ]}
-        >
-          Recent
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.segmentButton,
-          activeTab === 'Projects Sold' && styles.segmentActive,
-        ]}
-        onPress={() => setActiveTab('Projects Sold')}
-      >
-        <Text
-          style={[
-            styles.segmentText,
-            activeTab === 'Projects Sold' && styles.segmentTextActive,
-          ]}
-        >
-          Projects Sold
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -75,31 +38,40 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.bellWrapper}>
           <Ionicons
             name="notifications-outline"
-            size={25}
-            color={COLORS.primary}
+            size={24}
+            color={COLORS.textWhite}
           />
           <View style={styles.bellDot} />
         </TouchableOpacity>
       </View>
 
-      {/* Tabs */}
-      <SegmentedControl />
+      {/* Search Bar (Replaces Segmented Control) */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search-outline" size={20} color={COLORS.primary} style={styles.searchIcon} />
+        <TextInput 
+          placeholder="Search projects" 
+          placeholderTextColor="#666" 
+          style={styles.searchInput}
+        />
+      </View>
 
-      {/* Empty State */}
+      {/* Empty State Card */}
       <View style={styles.centerContainer}>
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.emptyCard}
           onPress={() => router.push('/form1')}
         >
-          <View style={styles.emptyIconWrapper}>
+          <View style={styles.iconContainer}>
+            {/* Building Icon */}
             <MaterialCommunityIcons
               name="office-building"
-              size={70}
-              color="#1A1A1A"
+              size={60}
+              color={COLORS.cardText}
             />
-            <View style={styles.addBadge}>
-              <Ionicons name="add" size={16} color="#1A1A1A" />
+            {/* Plus Badge on Icon */}
+            <View style={styles.iconBadge}>
+              <Ionicons name="add" size={14} color={COLORS.cardText} />
             </View>
           </View>
 
@@ -110,28 +82,25 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
+      {/* BOTTOM TAB BAR */}
+      <View style={styles.tabBar}>
         <TouchableOpacity>
           <Ionicons name="home-outline" size={24} color="#fff" />
         </TouchableOpacity>
 
         <TouchableOpacity>
-          <Ionicons name="document-text-outline" size={23} color="#fff" />
+          <Feather name="file-text" size={23} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.centerButton}
-          onPress={() => router.push('/form1')}
-        >
+        <TouchableOpacity style={styles.centerButton} onPress={() => router.push("/form1")}>
           <Text style={styles.plus}>+</Text>
         </TouchableOpacity>
 
         <TouchableOpacity>
-          <Ionicons name="search-outline" size={23} color="#fff" />
+          <Feather name="search" size={23} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push('/Profile')}>
+        <TouchableOpacity onPress={() => router.push("/Profile")}>
           <Ionicons name="person-circle-outline" size={28} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -143,123 +112,128 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    padding: 24,
-    paddingTop: 70,
+    paddingHorizontal: 24,
+    paddingTop: 60, 
   },
 
+  // Header Styles
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 25,
+    alignItems: 'flex-start',
+    marginBottom: 20,
   },
   greeting: {
     color: COLORS.textGrey,
-    fontSize: 14,
+    fontSize: 16,
+    marginBottom: 4,
   },
   title: {
     color: COLORS.textWhite,
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '700',
-    marginTop: 4,
+    letterSpacing: 0.5,
   },
-
   bellWrapper: {
+    padding: 4,
     position: 'relative',
-    padding: 8,
   },
   bellDot: {
     position: 'absolute',
-    top: 6,
+    top: 5,
     right: 6,
     width: 8,
     height: 8,
-    borderRadius: 5,
+    borderRadius: 4,
     backgroundColor: COLORS.primary,
+    borderWidth: 1.5,
+    borderColor: COLORS.background,
   },
 
-  // Segment
-  segmentWrapper: {
+  // Search Bar Styles
+  searchContainer: {
     flexDirection: 'row',
-    backgroundColor: COLORS.tabInactive,
-    borderRadius: 12,
-    padding: 6,
-    marginBottom: 20,
-  },
-  segmentButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
     alignItems: 'center',
+    backgroundColor: COLORS.searchBg,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 50,
+    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: '#333',
   },
-  segmentActive: {
-    backgroundColor: COLORS.primary,
+  searchIcon: {
+    marginRight: 12,
   },
-  segmentText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textGrey,
-  },
-  segmentTextActive: {
-    color: '#000',
+  searchInput: {
+    flex: 1,
+    color: COLORS.textWhite,
+    fontSize: 15,
   },
 
+  // Center Card Styles
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    marginTop: -40,
+    alignItems: 'center',
+    marginTop: 20,
   },
-
   emptyCard: {
-    width: '100%',
-    aspectRatio: 1,
+    width: '85%',
+    aspectRatio: 0.85, // Makes it slightly taller than wide
     backgroundColor: COLORS.primary,
-    borderRadius: 18,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+    // Slight shadow
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
   },
-
-  emptyIconWrapper: {
-    marginBottom: 15,
+  iconContainer: {
     position: 'relative',
+    marginBottom: 20,
   },
-  addBadge: {
+  iconBadge: {
     position: 'absolute',
-    bottom: -8,
-    right: -12,
-    width: 26,
-    height: 26,
-    backgroundColor: 'rgba(255,255,255,0.4)',
-    borderRadius: 13,
+    bottom: -5,
+    right: -10,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 15,
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: '#1A1A1A',
     borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
   },
-
   emptyTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 6,
+    color: COLORS.cardText,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#1A1A1A',
+    color: COLORS.cardText,
     opacity: 0.7,
+    textAlign: 'center',
   },
 
-  // Bottom Nav
-  bottomNav: {
-    position: 'absolute',
+  // Bottom Navigation Styles
+  tabBar: {
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: 75,
-    backgroundColor: '#1A1C20',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    backgroundColor: "#1A1C20",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
@@ -268,13 +242,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F1FE74',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#F1FE74",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  plus: { 
-    fontSize: 22, 
-    color: '#000', 
-    marginTop: -1 
-  },
+  plus: { fontSize: 22, color: "#000", marginTop: -1 },
 });

@@ -24,17 +24,17 @@ export default function BoardingSlideshow() {
     {
       title: "Investor\nMath\nDone.",
       dotIndex: 0,
-      image: require("../assets/images/Imgg1.png"),
+      image: require("../assets/images/onboarding-img1.png"),
     },
     {
       title: "Save\nBrand\nShare",
       dotIndex: 1,
-      image: require("../assets/images/Imgg2.png"),
+      image: require("../assets/images/onboarding-img2.png"),
     },
     {
       title: "We Call on\nYour\nBehalf",
       dotIndex: 2,
-      image: require("../assets/images/Imgg3.png"),
+      image: require("../assets/images/onboarding-img3.png"),
     },
   ];
 
@@ -126,7 +126,7 @@ export default function BoardingSlideshow() {
             <TouchableOpacity
                 style={styles.primaryButton}
                 activeOpacity={0.8}
-                onPress={() => router.push("/email")} // Adjust route as needed
+                onPress={() => router.push("/login")} // Adjust route as needed
             >
                 <Feather name="mail" size={20} color="#000" style={{marginRight: 10}}/>
                 <Text style={styles.primaryButtonText}>Continue with Email</Text>

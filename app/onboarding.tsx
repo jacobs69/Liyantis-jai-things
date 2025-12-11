@@ -1,70 +1,78 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from "expo-router";
+import { Text, View, StyleSheet, TouchableOpacity, StatusBar, Image } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 
+export default function Index() {
+  const router = useRouter();
 
-export default function App() {
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
-      
-      {/* Background Gradient */}
-      <LinearGradient
-        colors={['#181A20', '#1f2128', '#121316']}
-        style={StyleSheet.absoluteFillObject}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <StatusBar 
+        barStyle="light-content" 
+        translucent 
+        backgroundColor="transparent"
       />
+      
+      {/* Upper Half - Three Circular Images */}
+      <View style={styles.imageContainer}>
+        {/* Small Circle - Top Left */}
+        <View style={[styles.circleWrapper, styles.circle1Position]}>
+          <Image 
+            source={require('../assets/images/onboarding-img1.png')}
+            style={styles.circle1}
+            resizeMode="cover"
+          />
+          <View style={styles.checkmark}>
+            <Ionicons name="checkmark" size={14} color="#000" />
+          </View>
+        </View>
 
-      {/* --- Onboarding Group Image --- */}
-      <View style={styles.onboardingImageSection}>
-        <Image 
-          source={require('../../assets/images/onboarding group.png')}
-          style={styles.onboardingImage}
-          resizeMode="contain"
-        />
+        {/* Medium Circle - Top Right */}
+        <View style={[styles.circleWrapper, styles.circle2Position]}>
+          <Image 
+            source={require('../assets/images/onboarding-img2.png')}
+            style={styles.circle2}
+            resizeMode="cover"
+          />
+          <View style={styles.checkmark}>
+            <Ionicons name="checkmark" size={14} color="#000" />
+          </View>
+        </View>
+
+        {/* Large Circle - Bottom Center */}
+        <View style={[styles.circleWrapper, styles.circle3Position]}>
+          <Image 
+            source={require('../assets/images/onboarding-img3.png')}
+            style={styles.circle3}
+            resizeMode="cover"
+          />
+          <View style={styles.checkmark}>
+            <Ionicons name="checkmark" size={16} color="#000" />
+          </View>
+        </View>
       </View>
 
-      {/* --- Text Content Section --- */}
-      <View style={styles.textSection}>
-        <View>
-          <Text style={styles.subTitle}>SUPERPOWERS TO CLOSE DEALS</Text>
-          <Text style={styles.title}>
-            Turning{"\n"}
-            <Text style={{ fontWeight: '500' }}>Agents</Text> into{"\n"}
-            <Text style={{ fontWeight: '500' }}>Closers</Text>
-          </Text>
-        </View>
+      {/* Content */}
+      <View style={styles.content}>
+        <Text style={styles.subtitle}>SUPERPOWERS TO CLOSE DEALS</Text>
+        <Text style={styles.title}>Turning</Text>
+        <Text style={styles.title}>Agents into</Text>
+        <Text style={styles.title}>Closers</Text>
 
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => console.log('Get Started')}
-          activeOpacity={0.8}
+          onPress={() => router.push('/boardingSlideshow')}
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
       </View>
 
-      {/* --- Slide Arrow --- */}
-      <TouchableOpacity 
-        style={styles.slideArrowContainer}
-        activeOpacity={0.9}
-        onPress={() => console.log('Slide to next')}
-      >
-        <Image 
-          source={require('../../assets/images/slide arrow cut.png')}
-          style={styles.slideArrowImage}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
-      
-      {/* Gradient Overlay at bottom for text readability */}
-      <LinearGradient
-        colors={['transparent', '#181A20']}
-        style={styles.bottomOverlay}
-        pointerEvents="none"
-      />
+      {/* Arrow - bottom right */}
+      <View style={styles.arrowWrapper}>
+        <View style={styles.arrowShape}>
+          <Ionicons name="arrow-forward" size={28} color="#181A20" style={{ transform: [{ rotate: '20deg' }] }} />
+        </View>
+      </View>
     </View>
   );
 }
@@ -72,86 +80,120 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181A20',
+    backgroundColor: '#15171c',
+    position: 'relative',
   },
-  // Onboarding Image Area
-  onboardingImageSection: {
+  imageContainer: {
+    height: '45%',
     width: '100%',
-    height: '50%',
+    position: 'relative',
+    marginTop: 40,
+  },
+  
+  // Circle Wrappers
+  circleWrapper: {
+    position: 'absolute',
+  },
+  
+  // Circle 1 - Small (Top Left)
+  circle1Position: {
+    top: 60,
+    left: 30, // Moved slightly left
+  },
+  circle1: {
+    width: 90, // Increased size
+    height: 90, // Increased size
+    borderRadius: 45,
+  },
+  
+  // Circle 2 - Medium (Top Right)
+  circle2Position: {
+    top: 20,
+    right: 20, // Moved slightly right
+  },
+  circle2: {
+    width: 110, // Increased size
+    height: 110, // Increased size
+    borderRadius: 55,
+  },
+  
+  // Circle 3 - Large (Bottom Center)
+  circle3Position: {
+    bottom: -30, // Moved slightly down
+    left: '50%',
+    marginLeft: -80, // Adjusted center
+  },
+  circle3: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+  },
+  
+  // Checkmark Badge
+  checkmark: {
+    position: 'absolute',
+    top: 0, // Positioned at the very top edge
+    right: 0, // Positioned at the very right edge
+    width: 30, // Increased size
+    height: 30, // Increased size
+    borderRadius: 15,
+    backgroundColor: '#EEFB73',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 60,
-    zIndex: 10,
+    zIndex: 15,
+    borderWidth: 3, // Added border for the "cutout" effect
+    borderColor: '#15171c', // Border matches background color
   },
-  onboardingImage: {
-    width: '100%',
-    height: '100%',
+  
+  content: {
+    position: 'absolute',
+    bottom: 100, // Moved up slightly
+    left: 34,
+    right: 24,
   },
-
-  // Text Area
-  textSection: {
-    paddingHorizontal: 32,
-    paddingBottom: 64,
-    paddingTop: 20,
-    justifyContent: 'flex-end',
-    zIndex: 20,
-    gap: 32,
-  },
-  subTitle: {
-    color: '#D4FF4A',
-    fontSize: 14,
-    fontFamily: 'Inter_700Bold',
-    fontWeight: '700',
-    letterSpacing: 2,
+  subtitle: {
+    color: '#EEFB73',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1.5,
     marginBottom: 12,
-    textTransform: 'uppercase',
   },
   title: {
-    color: '#FFFFFF',
-    fontSize: 35,
-    fontFamily: 'Kaleko105Book',
-    lineHeight: 40,
+    color: '#fff',
+    fontSize: 42,
+    fontWeight: '300',
+    lineHeight: 50,
   },
   button: {
     backgroundColor: '#EEFB73',
-    paddingVertical: 16,
+    paddingVertical: 14,
     paddingHorizontal: 32,
-    borderRadius: 50,
+    borderRadius: 25,
     alignSelf: 'flex-start',
-    shadowColor: "#EEFB73",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 5,
+    marginTop: 24,
   },
   buttonText: {
     color: '#181A20',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
 
-  // Slide Arrow
-  slideArrowContainer: {
+  /* ---------------- ARROW ---------------- */
+  arrowWrapper: {
     position: 'absolute',
-    bottom: 80,
-    right: -100,
-    width: 278.6,
-    height: 278.6,
-    zIndex: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  slideArrowImage: {
-    width: '100%',
-    height: '100%',
+    bottom: 140, // Moved up significantly
+    right: -20,
   },
 
-  bottomOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '25%',
-    zIndex: 0,
+  arrowShape: {
+    width: 120, // Increased size
+    height: 120, // Increased size
+    backgroundColor: '#EEFB73',
+    borderTopLeftRadius: 130,
+    borderBottomLeftRadius: 130,
+    justifyContent: 'center',
+    alignItems: 'center',
+    transform: [{ rotate: '-11deg' }],
+    paddingLeft: 30, // Adjusted padding
   },
 });

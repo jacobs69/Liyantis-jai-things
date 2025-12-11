@@ -84,8 +84,8 @@ export default function PaymentDetailsScreen() {
           {/* Progress Bar (Step 3 active) */}
           <View style={styles.progressBar}>
             <View style={styles.progressDot} />
-            <View style={styles.progressDot} />
             <View style={[styles.progressDot, styles.progressActive]} />
+            <View style={styles.progressDot} />
             <View style={styles.progressDot} />
           </View>
         </View>
@@ -203,6 +203,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
@@ -210,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
+    marginBottom: 10,
   },
   backButton: { padding: 4 },
   headerTitleContainer: { alignItems: 'center' },

@@ -203,6 +203,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
@@ -210,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
+    marginBottom: 10,
   },
   backButton: {
     padding: 4,

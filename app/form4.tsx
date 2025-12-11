@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     Dimensions,
+    PanResponder,
     SafeAreaView,
     ScrollView,
     StatusBar,
@@ -36,6 +37,37 @@ const CustomRatingSlider = ({
   value: number; 
   onValueChange: (val: number) => void 
 }) => {
+  const [sliderWidth, setSliderWidth] = useState(0);
+
+  const updateValueFromPosition = (xPos: number) => {
+    if (sliderWidth === 0) return;
+    const step = sliderWidth / 4; // 5 positions = 4 gaps
+    const newIndex = Math.round(xPos / step);
+    const clampedIndex = Math.max(0, Math.min(newIndex, 4));
+    const newValue = clampedIndex + 1; // Convert 0-4 to 1-5
+    onValueChange(newValue);
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderGrant: (evt) => {
+        updateValueFromPosition(evt.nativeEvent.locationX);
+      },
+      onPanResponderMove: (evt) => {
+        updateValueFromPosition(evt.nativeEvent.locationX);
+      },
+    })
+  ).current;
+
+  const getActiveDotPosition = () => {
+    if (sliderWidth === 0) return 0;
+    return ((value - 1) / 4) * sliderWidth;
+  };
+
   return (
     <View style={styles.sliderRow}>
       {/* Header: Label and Number */}
@@ -45,7 +77,11 @@ const CustomRatingSlider = ({
       </View>
 
       {/* The Visual Slider */}
-      <View style={styles.sliderContainer}>
+      <View 
+        style={styles.sliderContainer}
+        onLayout={(e) => setSliderWidth(e.nativeEvent.layout.width)}
+        {...panResponder.panHandlers}
+      >
         {/* The horizontal line track */}
         <View style={styles.trackLine} />
         
@@ -58,18 +94,24 @@ const CustomRatingSlider = ({
                 key={item}
                 activeOpacity={0.7}
                 onPress={() => onValueChange(item)}
-                style={styles.dotTouchArea} // Larger hit slop
+                style={styles.dotTouchArea}
               >
                 <View style={[
                   styles.dotBase,
                   isActive ? styles.dotActive : styles.dotInactive
                 ]}>
-                  {/* Optional: Inner center dot for active state if needed, currently transparent */}
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
+
+        {/* Draggable Active Indicator */}
+        {sliderWidth > 0 && (
+          <View style={[styles.draggableIndicator, { left: getActiveDotPosition() }]}>
+            <View style={styles.draggableCircle} />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -225,6 +267,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   // Header Styles
   header: {
@@ -233,6 +276,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
+    marginBottom: 10,
   },
   backButton: { padding: 4 },
   headerTitleContainer: { alignItems: 'center' },
@@ -333,6 +377,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: COLORS.activeDotBorder,
     marginTop: -4, // Visual lift to keep centered on line
+  },
+  draggableIndicator: {
+    position: 'absolute',
+    top: 5,
+    marginLeft: -10,
+    zIndex: 10,
+  },
+  draggableCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    borderWidth: 3,
+    borderColor: '#000',
   },
 
   // Footer Styles
