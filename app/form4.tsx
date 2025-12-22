@@ -163,7 +163,7 @@ export default function RatingCardScreen() {
           </View>
         </View>
         
-        <View style={{ width: 24 }} /> {/* Spacer for alignment */}
+        <View style={styles.spacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -248,13 +248,13 @@ export default function RatingCardScreen() {
         </View>
 
         {/* Extra padding at bottom so button doesn't cover last item */}
-        <View style={{ height: 100 }} />
+        <View style={styles.bottomPadding} />
 
       </ScrollView>
 
       {/* --- Footer Button --- */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.skipButton} onPress={() => router.push('/home')}>
+        <TouchableOpacity style={styles.skipButton} onPress={() => router.push('/homeRouter')}>
           <Text style={styles.skipButtonText}>Skip</Text>
         </TouchableOpacity>
       </View>
@@ -411,5 +411,11 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
     fontWeight: '700',
+  },
+  spacer: {
+    width: 24,
+  },
+  bottomPadding: {
+    height: 100,
   },
 });

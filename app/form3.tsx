@@ -86,7 +86,7 @@ export default function ProjectionsScreen() {
           </View>
         </View>
         
-        <View style={{ width: 24 }} /> {/* Spacer */}
+        <View style={styles.spacer} />
       </View>
 
       <KeyboardAvoidingView 
@@ -125,14 +125,14 @@ export default function ProjectionsScreen() {
           </View>
 
           <View style={styles.row}>
-            <View style={{ flex: 1, marginRight: 10 }}>
+            <View style={styles.strategyColumn}>
               <StrategyBox 
                 label="Conservative" 
                 value={conservative} 
                 onChange={setConservative} 
               />
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={styles.strategyColumnRight}>
               <StrategyBox 
                 label="Optimistic" 
                 value={optimistic} 
@@ -281,5 +281,15 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
     fontWeight: '700',
+  },
+  spacer: {
+    width: 24,
+  },
+  strategyColumn: {
+    flex: 1,
+    marginRight: 10,
+  },
+  strategyColumnRight: {
+    flex: 1,
   },
 });
