@@ -185,7 +185,7 @@ export default function AddProjectScreen() {
           </View>
         </View>
         
-        <View style={{ width: 24 }} /> {/* Spacer for alignment */}
+        <View style={{ width: 24 }} />
       </View>
 
       <KeyboardAvoidingView 

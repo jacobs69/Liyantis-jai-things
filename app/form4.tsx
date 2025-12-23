@@ -2,27 +2,26 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Animated,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 // --- Constants & Theme ---
 const COLORS = {
   background: '#181A20',
   cardBg: '#1C1C1E',
-  primary: '#EEFB73', // Updated yellow color
+  primary: '#EEFB73',
   textWhite: '#FFFFFF',
   textGrey: '#A0A0A0',
-  sliderTrack: '#4A5568', // Dark grey-blue for the line
-  dotInactive: '#B0C4DE', // Light blue-grey for dots
-  activeDotBorder: '#EEFB73', // Updated yellow color
+  sliderTrack: '#4A5568',
+  dotInactive: '#B0C4DE',
 };
 
 // --- Types ---
@@ -49,11 +48,7 @@ const categories: Category[] = [
   { id: 'resale', label: 'Resale', initial: 3 },
 ];
 
-// --- Components ---
-/**
- * Animated Ring Component
- * Creates the pulsing effect around the selected dot.
- */
+// --- Selection Ring ---
 const SelectionRing = () => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
@@ -90,113 +85,94 @@ const SelectionRing = () => {
 
     pulse.start();
     return () => pulse.stop();
-  }, [scaleAnim, opacityAnim]);
+  }, []);
 
   return (
     <Animated.View
       style={[
         styles.ring,
-        {
-          transform: [{ scale: scaleAnim }],
-          opacity: opacityAnim,
-        },
+        { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
       ]}
     />
   );
 };
 
-/**
- * Custom Slider Component
- * Renders a track with 5 tappable dots.
- */
+// --- Slider ---
 interface CustomSliderProps {
   value: number;
   onChange: (val: number) => void;
 }
 
-const CustomSlider = ({ value, onChange }: CustomSliderProps) => {
-  return (
-    <View style={styles.sliderContainer}>
-      {/* Track Line */}
-      <View style={styles.track} />
-      
-      {/* Dots Container */}
-      <View style={styles.dotsRow}>
-        {[1, 2, 3, 4, 5].map((step) => {
-          const isSelected = value === step;
-          return (
-            <TouchableOpacity
-              key={step}
-              activeOpacity={0.8}
-              onPress={() => onChange(step)}
-              style={styles.touchTarget}
-            >
-              {/* Selection Ring (Absolute positioned behind dot) */}
-              {isSelected && <SelectionRing />}
-              
-              {/* The Dot */}
-              <View
-                style={[
-                  styles.dot,
-                  isSelected ? styles.dotSelected : styles.dotInactive,
-                ]}
-              />
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+const CustomSlider = ({ value, onChange }: CustomSliderProps) => (
+  <View style={styles.sliderContainer}>
+    <View style={styles.track} />
+    <View style={styles.dotsRow}>
+      {[1, 2, 3, 4, 5].map((step) => {
+        const isSelected = value === step;
+        return (
+          <TouchableOpacity
+            key={step}
+            onPress={() => onChange(step)}
+            style={styles.touchTarget}
+          >
+            {isSelected && <SelectionRing />}
+            <View
+              style={[
+                styles.dot,
+                isSelected ? styles.dotSelected : styles.dotInactive,
+              ]}
+            />
+          </TouchableOpacity>
+        );
+      })}
     </View>
-  );
-};
+  </View>
+);
 
-/**
- * Row Component
- * Displays the Label, Current Score, and the Slider.
- */
+// --- Row ---
 interface ScoreRowProps {
   label: string;
   value: number;
   onChange: (val: number) => void;
 }
 
-const ScoreRow = ({ label, value, onChange }: ScoreRowProps) => {
-  return (
-    <View style={styles.rowContainer}>
-      <View style={styles.textRow}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.scoreValue}>{value}</Text>
-      </View>
-      <CustomSlider value={value} onChange={onChange} />
+const ScoreRow = ({ label, value, onChange }: ScoreRowProps) => (
+  <View style={styles.rowContainer}>
+    <View style={styles.textRow}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.scoreValue}>{value}</Text>
     </View>
-  );
-};
+    <CustomSlider value={value} onChange={onChange} />
+  </View>
+);
 
-// --- Main App Component ---
+// --- Screen ---
 export default function RatingCardScreen() {
   const router = useRouter();
 
   const [scores, setScores] = useState<Record<string, number>>(() =>
-    categories.reduce((acc, cat) => ({ ...acc, [cat.id]: cat.initial }), 
-    {} as Record<string, number>)
+    categories.reduce(
+      (acc, cat) => ({ ...acc, [cat.id]: cat.initial }),
+      {}
+    )
   );
 
-  const handleScoreChange = (id: string, newValue: number) => {
-    setScores((prev) => ({ ...prev, [id]: newValue }));
+  const handleScoreChange = (id: string, value: number) => {
+    setScores((prev) => ({ ...prev, [id]: value }));
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
-      {/* --- Header --- */}
+
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color={COLORS.textWhite} />
         </TouchableOpacity>
-        
+
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>Rating Card</Text>
-          {/* Progress Bar (Step 4 Highlighted) */}
           <View style={styles.progressBar}>
             <View style={styles.progressDot} />
             <View style={styles.progressDot} />
@@ -204,21 +180,20 @@ export default function RatingCardScreen() {
             <View style={[styles.progressDot, styles.progressActive]} />
           </View>
         </View>
-        
-        <View style={{ width: 24 }} /> {/* Spacer for alignment */}
+
+        <View style={styles.spacer} />
       </View>
 
+      {/* Content */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        
-        {/* Sub-header */}
         <View style={styles.subHeader}>
           <Text style={styles.subTitle}>Score Project</Text>
           <Text style={styles.optionalText}>Optional</Text>
         </View>
-        
+
         <View style={styles.introContainer}>
           <Text style={styles.introText}>
             Add installments to complete the 100% payment for the project.
@@ -226,66 +201,77 @@ export default function RatingCardScreen() {
         </View>
 
         <View style={styles.listContainer}>
-          {categories.map((category) => (
+          {categories.map((cat) => (
             <ScoreRow
-              key={category.id}
-              label={category.label}
-              value={scores[category.id]}
-              onChange={(val) => handleScoreChange(category.id, val)}
+              key={cat.id}
+              label={cat.label}
+              value={scores[cat.id]}
+              onChange={(val) => handleScoreChange(cat.id, val)}
             />
           ))}
         </View>
 
-        {/* Skip Button - Now part of scroll content */}
         <View style={styles.nextButtonContainer}>
-          <TouchableOpacity style={styles.nextButton} onPress={() => router.push('/home')}>
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={() => router.push('/home')}
+          >
             <Text style={styles.nextButtonText}>Skip</Text>
           </TouchableOpacity>
         </View>
 
+        <View style={styles.bottomPadding} />
       </ScrollView>
-
     </SafeAreaView>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
     paddingTop: 50,
   },
-  // Header Styles
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 10,
     marginBottom: 10,
   },
-  backButton: { padding: 4 },
-  headerTitleContainer: { alignItems: 'center' },
+  backButton: { 
+    padding: 4 
+  },
+  headerTitleContainer: { 
+    alignItems: 'center' 
+  },
   headerTitle: {
     color: COLORS.textWhite,
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 6,
   },
-  progressBar: { flexDirection: 'row', gap: 4 },
+  progressBar: { 
+    flexDirection: 'row', 
+    gap: 4 
+  },
   progressDot: {
     width: 27,
     height: 7,
     borderRadius: 3.5,
     backgroundColor: '#D9D9D9',
   },
-  progressActive: { backgroundColor: '#EEFB73' },
+  progressActive: { 
+    backgroundColor: '#EEFB73' 
+  },
 
   // Content Styles
   scrollContent: {
     paddingHorizontal: 20,
     paddingVertical: 24,
-    paddingBottom: 40, // Normal padding since button is now in scroll content
+    paddingBottom: 40,
   },
   subHeader: {
     flexDirection: 'row',
@@ -346,46 +332,39 @@ const styles = StyleSheet.create({
   },
   track: {
     position: 'absolute',
+    height: 2,
     left: 0,
     right: 0,
-    height: 2,
     backgroundColor: COLORS.sliderTrack,
-    borderRadius: 2,
   },
-  dotsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  dotsRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between' 
   },
   touchTarget: {
     width: 40,
     height: 40,
-    justifyContent: 'center',
     alignItems: 'center',
-    // Ensure the touch target is on top of the track
-    zIndex: 10,
+    justifyContent: 'center',
   },
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+  dot: { 
+    width: 12, 
+    height: 12, 
+    borderRadius: 6 
   },
-  dotInactive: {
-    backgroundColor: '#cffafe', // cyan-100
+  dotInactive: { 
+    backgroundColor: '#cffafe' 
   },
   dotSelected: {
-    backgroundColor: '#a5f3fc', // cyan-200
-    // In React Native, shadows are platform specific
+    backgroundColor: '#a5f3fc',
     ...Platform.select({
-      ios: {
-        shadowColor: '#a5f3fc',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8,
-        shadowRadius: 5,
+      ios: { 
+        shadowColor: '#a5f3fc', 
+        shadowOpacity: 0.8, 
+        shadowRadius: 5 
       },
-      android: {
-        elevation: 5,
-        shadowColor: '#a5f3fc',
+      android: { 
+        elevation: 5 
       },
     }),
   },
@@ -395,8 +374,7 @@ const styles = StyleSheet.create({
     height: 26,
     borderRadius: 13,
     borderWidth: 1.5,
-    borderColor: '#fef08a', // yellow-200
-    zIndex: -1,
+    borderColor: '#fef08a',
   },
 
   // Button Styles
@@ -415,5 +393,11 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
     fontWeight: '700',
+  },
+  spacer: { 
+    width: 24 
+  },
+  bottomPadding: { 
+    height: 80 
   },
 });

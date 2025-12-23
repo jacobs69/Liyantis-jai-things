@@ -1,9 +1,8 @@
-import { Feather, Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
-  Animated,
-  Dimensions,
   Image,
   SafeAreaView,
   ScrollView,
@@ -11,343 +10,414 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-} from 'react-native';
-
-const { width, height } = Dimensions.get('window');
-
-/**
- * MenuItem Component
- */
-interface MenuItemProps {
-  iconName: string;
-  label: string;
-  iconLibrary?: any;
-}
-
-const MenuItem = ({ iconName, label, iconLibrary = Ionicons }: MenuItemProps) => {
-  const Icon = iconLibrary;
-  return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.menuItem}>
-      <View style={styles.menuItemLeft}>
-        <View style={styles.iconContainer}>
-          <Icon name={iconName} size={22} color="#000" />
-        </View>
-        <Text style={styles.menuItemLabel}>{label}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={22} color="#F1FE74" />
-    </TouchableOpacity>
-  );
-};
-
-/**
- * NavItem Component
- */
-interface NavItemProps {
-  iconName: string;
-  active?: boolean;
-  size?: number;
-  library?: any;
-}
-
-const NavItem = ({ iconName, active = false, size = 24, library = Ionicons }: NavItemProps) => {
-  const Icon = library;
-  return (
-    <TouchableOpacity style={styles.navItem}>
-      <Icon name={iconName} size={size} color={active ? "#FFF" : "#9CA3AF"} />
-      {active && <View style={styles.activeDot} />}
-    </TouchableOpacity>
-  );
-};
+  View
+} from "react-native";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const [menuVisible, setMenuVisible] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [selectedCurrency, setSelectedCurrency] = useState('AED');
+  const [selectedUnit, setSelectedUnit] = useState('ft²');
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const toggleMenu = () => {
-    if (!menuVisible) {
-      setMenuVisible(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => setMenuVisible(false));
-    }
-  };
+  const primaryCurrencies = ['AED', 'USD', 'EUR', 'RUB', 'CNY', 'INR'];
+  const allCurrencies = [...primaryCurrencies, 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'HKD', 'NZD', 'SGD', 'KRW', 'TRY', 'BRL', 'ZAR'];
+  const visibleCurrencies = isExpanded ? allCurrencies : primaryCurrencies;
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <>
+      <StatusBar barStyle="light-content" backgroundColor="#181A20" />
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <Header />
+          <View style={styles.contentContainer}>
+            <ProfileSummary />
+            <PersonalInfoSection />
+            <PreferencesSection 
+              selectedCurrency={selectedCurrency}
+              setSelectedCurrency={setSelectedCurrency}
+              selectedUnit={selectedUnit}
+              setSelectedUnit={setSelectedUnit}
+              isExpanded={isExpanded}
+              setIsExpanded={setIsExpanded}
+              visibleCurrencies={visibleCurrencies}
+            />
+          </View>
+        </ScrollView>
 
-      {/* Header */}
-      <SafeAreaView style={styles.headerSafeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.headerBtn}>
-            <Ionicons name="arrow-back" size={22} color="#FFF" />
+        {/* Bottom Navigation */}
+        <View style={styles.bottomNav}>
+          <TouchableOpacity onPress={() => router.push("/home")}>
+            <Ionicons name="home-outline" size={24} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity style={styles.headerBtn} onPress={toggleMenu}>
-            <Ionicons name="menu" size={26} color="#FFF" />
+
+          <TouchableOpacity>
+            <Feather name="file-text" size={23} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.centerButton}>
+            <Text style={styles.plus}>+</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Feather name="search" size={23} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/Profile")}>
+            <Ionicons name="person-circle-outline" size={28} color="#fff" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+    </>
+  );
+}
 
-      {/* Dropdown Menu */}
-      {menuVisible && (
-        <>
-          <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={toggleMenu} />
-          <Animated.View style={[styles.dropdown, { opacity: fadeAnim }]}>
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownText}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownText}>Terms of Service</Text>
-            </TouchableOpacity>
-            <View style={styles.divider} />
-            <TouchableOpacity style={styles.dropdownItem}>
-              <Text style={styles.dropdownText}>Sign Out</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </>
-      )}
+// --- Components ---
+const Header = () => {
+  return (
+    <View style={styles.headerContainer}>
+      <LinearGradient
+        colors={['#d1d5db', '#9ca3af']} // gray-300 to gray-400
+        style={styles.headerGradient}
+      />
+    </View>
+  );
+};
 
-      {/* Main Content */}
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Profile Info */}
-        <View style={styles.profileSection}>
-          <View style={styles.avatarWrapper}>
-            <Image 
-              source={{ uri: 'https://i.pravatar.cc/150?img=3' }} 
-              style={styles.avatar}
-            />
-          </View>
-          <Text style={styles.userName}>Arpit Aryan Gupta</Text>
-          <Text style={styles.userEmail}>arpit@liyantis.com</Text>
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>Edit Profile</Text>
-          </TouchableOpacity>
+const ProfileSummary = () => {
+  return (
+    <View style={styles.summaryContainer}>
+      <View style={styles.avatarWrapper}>
+        <View style={styles.avatarContainer}>
+          <Image 
+            source={{ uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Arpit&backgroundColor=b6e3f4" }} 
+            style={styles.avatarImage}
+          />
         </View>
-
-        {/* Stats Section */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>42</Text>
-            <Text style={styles.statLabel}>Projects Analyzed</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>7</Text>
-            <Text style={styles.statLabel}>Pinned Projects</Text>
-          </View>
-        </View>
-
-        {/* Menu Items */}
-        <View style={styles.menuList}>
-          <MenuItem iconName="heart" label="Saved Projects" />
-          <MenuItem iconName="headset-outline" label="Contact Support" />
-          <MenuItem iconName="settings-outline" label="App Settings" />
-        </View>
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity onPress={() => router.push('/home')}>
-          <NavItem iconName="home-outline" active={false} />
+        <TouchableOpacity style={styles.editButton}>
+          <Ionicons name="pencil" size={12} color="#9ca3af" />
         </TouchableOpacity>
-        <NavItem iconName="file-text" library={Feather} size={22} active={false} />
-        
-        {/* Center Add Button */}
-        <TouchableOpacity style={styles.centerButton}>
-          <Text style={styles.plus}>+</Text>
-        </TouchableOpacity>
-        
-        <NavItem iconName="search" library={Feather} size={22} active={false} />
-        <NavItem iconName="person-circle-outline" active={true} size={28} />
+      </View>
+      <Text style={styles.nameText}>Arpit Aryan Gupta</Text>
+      <View style={styles.statsContainer}>
+        <Text style={styles.statText}>Projects: <Text style={styles.statHighlight}>12</Text></Text>
+        <Text style={styles.statText}>Sold: <Text style={styles.statHighlight}>5</Text></Text>
       </View>
     </View>
   );
-}
+};
+
+const PersonalInfoSection = () => {
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Personal information</Text>
+      <View style={styles.card}>
+        <InfoItem icon="mail-outline" label="arpit@liyantis.com" />
+        <View style={styles.divider} />
+        <InfoItem icon="call-outline" label="1234567890" />
+        <View style={styles.divider} />
+        <InfoItem icon="location-outline" label="Dubai" />
+      </View>
+    </View>
+  );
+};
+
+const InfoItem = ({ icon, label }: { icon: string; label: string }) => {
+  return (
+    <TouchableOpacity style={styles.infoItem} activeOpacity={0.7}>
+      <View style={styles.infoItemLeft}>
+        <Ionicons name={icon as any} size={18} color="#9ca3af" />
+        <Text style={styles.infoLabel}>{label}</Text>
+      </View>
+      <Ionicons name="pencil" size={14} color="#6b7280" />
+    </TouchableOpacity>
+  );
+};
+
+const PreferencesSection = ({ 
+  selectedCurrency, 
+  setSelectedCurrency, 
+  selectedUnit, 
+  setSelectedUnit, 
+  isExpanded, 
+  setIsExpanded, 
+  visibleCurrencies 
+}: {
+  selectedCurrency: string;
+  setSelectedCurrency: (currency: string) => void;
+  selectedUnit: string;
+  setSelectedUnit: (unit: string) => void;
+  isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void;
+  visibleCurrencies: string[];
+}) => {
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Preferences</Text>
+      <View style={styles.cardPadding}>
+        {/* Currency Section */}
+        <View style={styles.preferenceGroup}>
+          <Text style={styles.preferenceLabel}>Currency</Text>
+          <View style={styles.chipContainer}>
+            {visibleCurrencies.map((curr: string) => (
+              <Chip 
+                key={curr} 
+                label={curr} 
+                isSelected={selectedCurrency === curr} 
+                onClick={() => setSelectedCurrency(curr)}
+              />
+            ))}
+          </View>
+          {/* Show More Dropdown Trigger */}
+          <TouchableOpacity 
+            style={styles.showMoreContainer}
+            onPress={() => setIsExpanded(!isExpanded)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.lineDivider} />
+            <View style={styles.showMoreContent}>
+              <Text style={styles.showMoreText}>
+                {isExpanded ? 'Show less' : 'Show more currencies'}
+              </Text>
+              <Ionicons 
+                name={isExpanded ? "chevron-up" : "chevron-down"} 
+                size={14} 
+                color="#9ca3af" 
+              />
+            </View>
+            <View style={styles.lineDivider} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Measure Units Section */}
+        <View>
+          <Text style={styles.preferenceLabel}>Measure units</Text>
+          <View style={styles.chipContainer}>
+            <Chip 
+              label="ft²" 
+              isSelected={selectedUnit === 'ft²'} 
+              onClick={() => setSelectedUnit('ft²')}
+            />
+            <Chip 
+              label="m²" 
+              isSelected={selectedUnit === 'm²'} 
+              onClick={() => setSelectedUnit('m²')}
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const Chip = ({ label, isSelected, onClick }: { label: string; isSelected: boolean; onClick: () => void }) => {
+  return (
+    <TouchableOpacity
+      onPress={onClick}
+      style={[
+        styles.chip,
+        isSelected ? styles.chipSelected : styles.chipUnselected
+      ]}
+      activeOpacity={0.8}
+    >
+      <Text style={[
+        styles.chipText,
+        isSelected ? styles.chipTextSelected : styles.chipTextUnselected
+      ]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#12141D',
-    paddingTop: 50,
+    backgroundColor: '#181A20',
   },
-  headerSafeArea: {
-    backgroundColor: '#12141D',
-    zIndex: 100,
+  scrollView: {
+    flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  headerBtn: {
-    padding: 5,
-  },
-  headerTitle: {
-    color: '#FFF',
-    fontSize: 20,
-    fontWeight: '600',
-  },
-
-  // Dropdown
-  menuOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 90,
-  },
-  dropdown: {
-    position: 'absolute',
-    top: 100,
-    right: 24,
-    width: 190,
-    backgroundColor: '#1B1D27',
-    borderRadius: 12,
-    zIndex: 101,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-  },
-  dropdownItem: {
+  contentContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    marginTop: -48, // Negative margin to overlap header
+    paddingBottom: 40,
   },
-  dropdownText: {
-    color: '#FFF',
-    fontSize: 15,
+  // Header
+  headerContainer: {
+    height: 192, // h-48
+    width: '100%',
+    position: 'relative',
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#333',
-    marginHorizontal: 12,
+  headerGradient: {
+    flex: 1,
   },
-
-  scrollContent: {
-    paddingHorizontal: 24,
-  },
-
-  // Profile
-  profileSection: {
+  // Profile Summary
+  summaryContainer: {
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 24,
   },
   avatarWrapper: {
-    marginBottom: 16,
+    position: 'relative',
   },
-  avatar: {
+  avatarContainer: {
     width: 96,
     height: 96,
     borderRadius: 48,
+    borderWidth: 4,
+    borderColor: '#181A20',
+    overflow: 'hidden',
+    backgroundColor: '#4b5563',
+    elevation: 5, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  userName: {
-    color: '#FFF',
-    fontSize: 22,
-    fontWeight: 'bold',
-    letterSpacing: -0.5,
-  },
-  userEmail: {
-    color: '#A3A3A3',
-    fontSize: 14,
-    marginTop: 4,
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   editButton: {
-    marginTop: 24,
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#2c2d33',
+    padding: 6,
+    borderRadius: 15,
     borderWidth: 1,
-    borderColor: '#FFF',
-    paddingVertical: 10,
-    paddingHorizontal: 32,
-    borderRadius: 12,
+    borderColor: '#4b5563',
   },
-  editButtonText: {
-    color: '#FFF',
-    fontSize: 14,
+  nameText: {
+    marginTop: 12,
+    fontSize: 20,
     fontWeight: '600',
+    color: 'white',
   },
-
-  // Stats
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 20,
-    marginBottom: 32,
+    gap: 24,
+    marginTop: 8,
   },
-  statBox: {
-    alignItems: 'center',
+  statText: {
+    fontSize: 14,
+    color: '#9ca3af',
   },
-  statValue: {
-    color: '#FFF',
-    fontSize: 24,
-    fontWeight: 'bold',
+  statHighlight: {
+    color: 'white',
   },
-  statLabel: {
-    color: '#A3A3A3',
-    fontSize: 12,
-    fontWeight: '400',
-    marginTop: 4,
-    textAlign: 'center',
+  // Sections
+  sectionContainer: {
+    marginBottom: 24,
   },
-
-  // Menu Items
-  menuList: {
-    gap: 0,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '500',
+    marginBottom: 12,
+    color: 'white',
   },
-  menuItem: {
+  card: {
+    backgroundColor: '#232429',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  cardPadding: {
+    backgroundColor: '#232429',
+    borderRadius: 12,
+    padding: 20,
+  },
+  // Info Items
+  infoItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1B1D27',
     padding: 16,
-    borderRadius: 16,
-    marginBottom: 16,
   },
-  menuItemLeft: {
+  infoItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 16,
   },
-  iconContainer: {
-    width: 38,
-    height: 38,
-    backgroundColor: '#F1FE74',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
+  infoLabel: {
+    fontSize: 14,
+    color: '#d1d5db', // gray-300
+    marginLeft: 16,
   },
-  menuItemLabel: {
-    color: '#FFF',
-    fontSize: 16,
+  divider: {
+    height: 1,
+    backgroundColor: '#374151', // gray-700
+    marginHorizontal: 16,
+    opacity: 0.5,
+  },
+  // Preferences
+  preferenceGroup: {
+    marginBottom: 24,
+  },
+  preferenceLabel: {
+    fontSize: 14,
+    color: '#9ca3af', // gray-400
+    marginBottom: 12,
+  },
+  chipContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  // Chips
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  chipSelected: {
+    backgroundColor: '#F1FE74', // Using existing profile color
+    borderColor: '#F1FE74',
+  },
+  chipUnselected: {
+    backgroundColor: 'transparent',
+    borderColor: '#4b5563', // gray-600
+  },
+  chipText: {
+    fontSize: 14,
     fontWeight: '500',
   },
+  chipTextSelected: {
+    color: '#111827', // gray-900
+  },
+  chipTextUnselected: {
+    color: '#d1d5db', // gray-300
+  },
+  // Show More
+  showMoreContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 4,
+  },
+  lineDivider: {
+    height: 1,
+    flex: 1,
+    backgroundColor: '#374151', // gray-700
+  },
+  showMoreContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  showMoreText: {
+    fontSize: 12,
+    color: '#9ca3af', // gray-400
+  },
 
-  // Navigation
+  /* BOTTOM NAV */
   bottomNav: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: 75,
-    backgroundColor: "#1A1C20",
+    backgroundColor: "#27292D",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
@@ -370,13 +440,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F1FE74",
+    backgroundColor: "#DFFF4F",
     justifyContent: "center",
     alignItems: "center",
   },
-  plus: { 
-    fontSize: 22, 
-    color: "#000", 
-    marginTop: -1 
+  plus: {
+    fontSize: 22,
+    color: "#000",
+    marginTop: -1,
   },
 });
