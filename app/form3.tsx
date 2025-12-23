@@ -186,13 +186,13 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   progressDot: {
-    width: 20,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#333',
+    width: 27,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#D9D9D9',
   },
   progressActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#EEFB73',
   },
   scrollContent: {
     padding: 20,
@@ -202,8 +202,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: COLORS.textGrey,
+    color: '#F5F5F5',
     fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '400',
     marginBottom: 8,
   },
   inputContainer: {
@@ -216,7 +218,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   input: {
-    color: COLORS.textWhite,
+    color: '#F5F5F5',
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
@@ -255,13 +257,15 @@ const styles = StyleSheet.create({
     height: 80,
   },
   strategyLabel: {
-    color: COLORS.textGrey,
-    fontSize: 12,
+    color: '#F5F5F5',
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '400',
     marginBottom: 4,
     alignSelf: 'flex-start',
   },
   strategyInput: {
-    color: COLORS.textWhite,
+    color: '#F5F5F5',
     fontSize: 28,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
@@ -273,7 +277,7 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Bottom margin for scroll content
   },
   nextButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#EEFB73',
     height: 56,
     borderRadius: 28,
     alignItems: 'center',

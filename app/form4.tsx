@@ -274,12 +274,12 @@ const styles = StyleSheet.create({
   },
   progressBar: { flexDirection: 'row', gap: 4 },
   progressDot: {
-    width: 20,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#333',
+    width: 27,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#D9D9D9',
   },
-  progressActive: { backgroundColor: COLORS.primary },
+  progressActive: { backgroundColor: '#EEFB73' },
 
   // Content Styles
   scrollContent: {
@@ -311,12 +311,12 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   listContainer: {
-    gap: 24, // Note: 'gap' works in newer React Native versions. For older, use marginBottom in children.
+    gap: 18, // Reduced from 24px to 18px spacing between rating items
   },
 
   // Row Styles
   rowContainer: {
-    marginBottom: 24, // Fallback spacing
+    marginBottom: 18, // Reduced from 24px to 18px spacing
   },
   textRow: {
     flexDirection: 'row',
@@ -325,9 +325,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   label: {
-    color: '#cbd5e1', // slate-300
+    color: '#F5F5F5',
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '400',
     letterSpacing: 0.5,
   },
   scoreValue: {
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Bottom margin for scroll content
   },
   nextButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#EEFB73',
     height: 56,
     borderRadius: 28,
     alignItems: 'center',

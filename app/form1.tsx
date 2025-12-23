@@ -2,18 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 
 // --- Constants & Theme ---
@@ -271,7 +271,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>Status</Text>
-              <Ionicons name="information-circle-outline" size={14} color={COLORS.textGrey} style={{ marginLeft: 4 }} />
+              <Ionicons name="information-circle-outline" size={14} color={COLORS.textGrey} style={styles.statusIcon} />
             </View>
             <View style={styles.statusButtonRow}>
               {['Off-Plan', 'Off-Resale', 'Secondary'].map((s) => (
@@ -457,27 +457,27 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   progressDot: {
-    width: 20,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#333',
+    width: 27,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#D9D9D9',
   },
   progressActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#EEFB73',
   },
   scrollContent: {
     padding: 20,
     paddingBottom: 40, // Normal padding since button is now in scroll content
   },
   fieldContainer: {
-    marginBottom: 23, // 23px spacing between fields
+    marginBottom: 18, // Reduced from 23px to 18px spacing between fields
   },
   row: {
     flexDirection: 'row',
     marginBottom: 0,
   },
   label: {
-    color: COLORS.textGrey,
+    color: '#F5F5F5',
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
@@ -485,14 +485,18 @@ const styles = StyleSheet.create({
   },
   labelRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: 4,
     marginBottom: 12, // 12px spacing between label and input box
+  },
+  statusIcon: {
+    marginTop: 1.5, // Slight downward adjustment
   },
   input: {
     width: '100%',
     height: 48,
     backgroundColor: 'transparent',
-    color: COLORS.textWhite,
+    color: '#F5F5F5',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
     borderRadius: 10,
@@ -503,7 +507,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   inputText: {
-    color: COLORS.textWhite,
+    color: '#F5F5F5',
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
@@ -555,6 +559,7 @@ const styles = StyleSheet.create({
   statusButtonText: {
     fontSize: 13,
     fontFamily: 'Inter-Medium',
+    fontWeight: '500',
   },
   statusButtonTextActive: {
     color: COLORS.textWhite,
@@ -567,7 +572,7 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Bottom margin for scroll content
   },
   nextButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#EEFB73',
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
