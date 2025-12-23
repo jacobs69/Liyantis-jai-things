@@ -3,19 +3,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import {
-    FlatList,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
 } from 'react-native';
 
 // --- Constants & Theme ---
@@ -30,24 +30,34 @@ const COLORS = {
 };
 
 // --- Components ---
-const InputField = ({ label, value, onChangeText, optional = false, suffix = '%' }: any) => (
-  <View style={styles.inputContainer}>
-    <View style={styles.labelRow}>
-      <Text style={styles.label}>{label}</Text>
-      {optional && <Text style={styles.optionalLabel}>Optional</Text>}
+const InputField = ({ label, value, onChangeText, optional = false, suffix = '%' }: any) => {
+  const handleTextChange = (text: string) => {
+    // Remove any existing % signs
+    let cleanText = text.replace(/%/g, '');
+    // Call the original onChangeText with clean number
+    onChangeText(cleanText);
+  };
+
+  const displayValue = value ? `${value}%` : '';
+
+  return (
+    <View style={styles.inputContainer}>
+      <View style={styles.labelRow}>
+        <Text style={styles.label}>{label}</Text>
+        {optional && <Text style={styles.optionalLabel}>Optional</Text>}
+      </View>
+      <View style={styles.inputWrapper}>
+        <TextInput
+          value={displayValue}
+          onChangeText={handleTextChange}
+          style={styles.input}
+          placeholderTextColor={COLORS.textGrey}
+          keyboardType="numeric"
+        />
+      </View>
     </View>
-    <View style={styles.inputWrapper}>
-      <TextInput
-        value={String(value)}
-        onChangeText={onChangeText}
-        style={styles.input}
-        placeholderTextColor={COLORS.textGrey}
-        keyboardType="default"
-      />
-      {suffix && <Text style={styles.suffix}>{suffix}</Text>}
-    </View>
-  </View>
-);
+  );
+};
 
 export default function PaymentDetailsScreen() {
   const router = useRouter();
@@ -165,7 +175,7 @@ export default function PaymentDetailsScreen() {
             
             <View style={styles.flipAtRow}>
               <View style={styles.flipAtContainer}>
-                <View style={styles.inputContainer}>
+                <View style={styles.inputContainerLeft}>
                   <View style={styles.labelRow}>
                     <Text style={styles.label}>Flip At</Text>
                   </View>
@@ -175,13 +185,16 @@ export default function PaymentDetailsScreen() {
                       onChangeText={setFlipAt}
                       style={styles.flipAtInput}
                       placeholderTextColor={COLORS.textGrey}
-                      keyboardType="default"
+                      keyboardType="numeric"
+                      multiline={false}
+                      scrollEnabled={false}
+                      editable={true}
                     />
                   </View>
                 </View>
               </View>
               <View style={styles.flipAtContainer}>
-                <View style={styles.inputContainer}>
+                <View style={styles.inputContainerLeft}>
                   <View style={styles.labelRow}>
                     <Text style={styles.label}>Handover At</Text>
                   </View>
@@ -189,9 +202,12 @@ export default function PaymentDetailsScreen() {
                     <TextInput
                       value={String(handoverAt)}
                       onChangeText={setHandoverAt}
-                      style={styles.flipAtInput}
+                      style={styles.handoverAtInput}
                       placeholderTextColor={COLORS.textGrey}
-                      keyboardType="default"
+                      keyboardType="numeric"
+                      multiline={false}
+                      scrollEnabled={false}
+                      editable={true}
                     />
                   </View>
                 </View>
@@ -203,7 +219,7 @@ export default function PaymentDetailsScreen() {
           <View style={styles.headerRow}>
             <Text style={styles.sectionHeaderTitle}>Add Installments</Text>
             <TouchableOpacity onPress={addInstallment} style={styles.addButton}>
-              <Ionicons name="add" size={16} color="#000000" />
+              <Ionicons name="add" size={21} color="#000000" />
             </TouchableOpacity>
           </View>
           <Text style={styles.subText}>
@@ -221,11 +237,11 @@ export default function PaymentDetailsScreen() {
                   <View style={styles.percentRow}>
                     <Text style={styles.bigPercent}>90%</Text>
                   </View>
-                  <Text style={styles.cardLabel}>COMPLETE</Text>
+                  <Text style={styles.cardLabel}>Complete</Text>
                 </View>
-                <View style={{ alignItems: 'flex-end', flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
                   <Text style={styles.bigCount}>{totalCount}</Text>
-                  <Text style={[styles.cardLabel, { color: '#FFFFFF', marginLeft: 8 }]}>Total Installments</Text>
+                  <Text style={[styles.cardLabel, { color: '#FFFFFF', marginLeft: 8, alignSelf: 'flex-end' }]}>Total installments</Text>
                 </View>
               </View>
 
@@ -285,9 +301,8 @@ export default function PaymentDetailsScreen() {
                         onPress={() => setActiveDropdownId(`month-${inst.id}`)}
                       >
                         <Text style={styles.monthText}>{inst.month}</Text>
-                        <Ionicons name="chevron-down" size={12} color="#64748b" />
                       </TouchableOpacity>
-                      <Text style={styles.yearText}>{inst.year}</Text>
+                      <Text style={styles.yearText}> {inst.year}</Text>
                     </View>
                   </View>
 
@@ -318,7 +333,7 @@ export default function PaymentDetailsScreen() {
                         {inst.type}
                       </Text>
                       {inst.type !== 'Down Payment' && (
-                        <Ionicons name="chevron-down" size={14} color="#64748b" style={{ marginLeft: 4 }} />
+                        <Ionicons name="chevron-down" size={14} color="#F5F5F5" style={{ marginLeft: 1 }} />
                       )}
                     </TouchableOpacity>
 
@@ -475,49 +490,65 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: { 
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 16, // 16px left and right margins
+    paddingVertical: 16, // Keep vertical padding
+    paddingBottom: 25, // Reduced from 30 to 25
   },
 
   // --- Config Section ---
   configSection: {
-    marginBottom: 24,
-    gap: 16,
+    marginBottom: 8, // Changed back to 8px
+    gap: 8, // Changed back to 8px for spacing between boxes
+    alignItems: 'center', // Revert back to center for box alignment
   },
   inputContainer: {
-    gap: 8,
-    marginBottom: 14, // Updated to 14px spacing between fields
+    gap: 8, // Keep as 8
+    marginBottom: 8, // Changed back to 8px
+    alignItems: 'center', // Revert back to center for box alignment
+  },
+  inputContainerLeft: {
+    gap: 8, // Keep as 8
+    marginBottom: 8, // Changed back to 8px
+    alignItems: 'flex-start', // Align to left for flip at
   },
   labelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    width: '100%', // Ensure full width for proper spacing
+    alignSelf: 'flex-start', // Align the entire label row to left
   },
   label: {
     color: '#F5F5F5',
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
+    textAlign: 'left', // Align label text to left
+    alignSelf: 'flex-start', // Align label container to left
   },
   optionalLabel: {
     color: COLORS.textGrey,
     fontSize: 12,
+    textAlign: 'right', // Align optional text to right
   },
   inputWrapper: {
     position: 'relative',
     justifyContent: 'center',
   },
   input: {
-    width: '100%',
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    height: 48,
     backgroundColor: 'transparent',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
     borderRadius: 10,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     color: '#F5F5F5',
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
+    textAlign: 'left', // Align text inside input to left
   },
   suffix: {
     position: 'absolute',
@@ -533,31 +564,33 @@ const styles = StyleSheet.create({
   },
   flipAtRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between', // Align to edges like post handover box
     alignItems: 'flex-start',
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    gap: 9, // Add 9px spacing between the two boxes
   },
   flipAtContainer: {
-    marginRight: 8,
+    alignItems: 'flex-start', // Align flip at label to left
   },
   flipAtInputWrapper: {
     position: 'relative',
     justifyContent: 'center',
-    backgroundColor: '#27292D',
+    backgroundColor: 'transparent',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
     borderRadius: 10,
-    width: 167,
+    width: 160.5, // Adjusted for 330px total width with 9px gap: (330-9)/2 = 160.5
     height: 48,
     paddingHorizontal: 16,
   },
   handoverInputWrapper: {
     position: 'relative',
     justifyContent: 'center',
-    backgroundColor: '#27292D',
+    backgroundColor: 'transparent',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
     borderRadius: 10,
-    width: 142,
+    width: 160.5, // Match flip at width for symmetry with 9px gap
     height: 48,
     paddingHorizontal: 16,
   },
@@ -565,10 +598,21 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'transparent',
     color: '#F5F5F5',
-    fontSize: 28,
+    fontSize: 22,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
     textAlign: 'center',
+    textAlignVertical: 'center', // Center vertically on Android
+  },
+  handoverAtInput: {
+    width: '100%',
+    backgroundColor: 'transparent',
+    color: '#F5F5F5',
+    fontSize: 22,
+    fontFamily: 'Inter-Medium',
+    fontWeight: '500',
+    textAlign: 'center',
+    textAlignVertical: 'center', // Center vertically on Android
   },
 
   // --- Header ---
@@ -576,7 +620,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 8, // Changed back to 8px
   },
   sectionHeaderTitle: {
     color: '#F5F5F5',
@@ -587,22 +631,22 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: '#EEFB73',
     borderRadius: 10,
-    width: 22.86,
-    height: 21.86,
+    width: 26, // Increased from 22.86 to 26
+    height: 25, // Increased from 21.86 to 25
     alignItems: 'center',
     justifyContent: 'center',
   },
   subText: {
     color: COLORS.textGrey,
     fontSize: 12,
-    marginBottom: 24,
+    marginBottom: 8, // Changed back to 8px
   },
 
   // --- Graph Card ---
   cardGradientBorder: {
     borderRadius: 14,
     padding: 4,
-    marginBottom: 32,
+    marginBottom: 8, // Changed back to 8px
   },
   card: {
     backgroundColor: '#27292D',
@@ -645,7 +689,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontWeight: '400',
     marginTop: -2,
-    textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
 
@@ -662,7 +705,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: '#334155',
+    backgroundColor: '#CDCDCD', // Updated timeline line color
     top: '50%',
     marginTop: -1,
   },
@@ -677,8 +720,8 @@ const styles = StyleSheet.create({
   nodeWrapper: {
     position: 'absolute',
     top: '50%',
-    marginTop: -8,
-    transform: [{ translateX: -6 }]
+    marginTop: -6, // Center the 12px circle on the line: -6px (half of circle height)
+    transform: [{ translateX: -6 }] // Center horizontally: -6px (half of circle width)
   },
   node: {
     width: 12,
@@ -698,12 +741,12 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     borderWidth: 1,
-    marginTop: 2,
+    marginTop: 2, // Adjust for smaller circles to stay centered: 2px offset from the -6px base
   },
 
   // --- List ---
   listContainer: {
-    gap: 16,
+    gap: 8, // Changed back to 8px for spacing between installment items
   },
   listItem: {
     flexDirection: 'row',
@@ -712,24 +755,25 @@ const styles = StyleSheet.create({
   },
   indexInput: {
     width: 32,
-    marginRight: 8,
+    marginRight: 18, // Changed from 8 to 18 for W18 gap between 1 and Nov
     color: '#F5F5F5',
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: 'left', // Changed from right to left to align numbers to left
     borderBottomWidth: 1,
     borderBottomColor: 'transparent',
   },
   dateColumn: {
     position: 'relative',
     width: 80,
-    marginRight: 8,
+    marginRight: 18, // Changed from 8 to 18 for W18 gap between 2025 and 5%
+    marginLeft: -20, // Increased from -16 to -20 to move Nov even more left
   },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 10, // Reduced from 14 to 10 to move 2025 even more left
   },
   monthDropdown: {
     flexDirection: 'row',
@@ -801,15 +845,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   percentInputWrapper: {
-    width: 60,
+    width: 35, // Reduced from 45 to 35 to make it even smaller
     marginRight: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start', // Changed from flex-end to flex-start to align left
   },
   percentInput: {
     flex: 1,
-    textAlign: 'right',
+    textAlign: 'left', // Changed from right to left to align percentage text left
     color: '#F5F5F5',
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
@@ -819,7 +863,8 @@ const styles = StyleSheet.create({
   percentSuffix: {
     color: COLORS.textGrey,
     fontSize: 14,
-    marginLeft: 2,
+    marginLeft: 2, // Keep small margin between number and %
+    marginRight: 0, // Remove any right margin to keep it close to the number
   },
   typeWrapper: {
     flex: 1,
@@ -833,7 +878,7 @@ const styles = StyleSheet.create({
   },
   typeText: {
     color: '#cbd5e1',
-    fontSize: 14,
+    fontSize: 11, // Reduced from 12 to 11 to fit "During Construction" on one line
     flex: 1,
   },
 
@@ -872,7 +917,7 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
+    marginLeft: 4, // Reverted back to 4
   },
   emptyText: {
     textAlign: 'center',
@@ -900,19 +945,21 @@ const styles = StyleSheet.create({
   },
 
   nextButtonContainer: {
-    marginTop: 30,
-    marginBottom: 20,
+    marginTop: 20, // Reduced from 25 to 20
+    marginBottom: 12, // Reduced from 15 to 12
+    alignItems: 'center', // Center the button horizontally
   },
   nextButton: {
     backgroundColor: '#EEFB73',
-    height: 56,
-    borderRadius: 28,
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   nextButtonText: {
     color: '#000000',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
 });

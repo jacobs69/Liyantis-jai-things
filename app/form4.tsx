@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Animated,
   Platform,
   SafeAreaView,
   ScrollView,
@@ -10,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 // --- Constants & Theme ---
@@ -50,50 +49,8 @@ const categories: Category[] = [
 
 // --- Selection Ring ---
 const SelectionRing = () => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.parallel([
-        Animated.sequence([
-          Animated.timing(scaleAnim, {
-            toValue: 1.2,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.sequence([
-          Animated.timing(opacityAnim, {
-            toValue: 0.6,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacityAnim, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ]),
-      ])
-    );
-
-    pulse.start();
-    return () => pulse.stop();
-  }, []);
-
   return (
-    <Animated.View
-      style={[
-        styles.ring,
-        { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
-      ]}
-    />
+    <View style={styles.ring} />
   );
 };
 
@@ -194,9 +151,12 @@ export default function RatingCardScreen() {
           <Text style={styles.optionalText}>Optional</Text>
         </View>
 
+        {/* White line under Score Project */}
+        <View style={styles.underline} />
+
         <View style={styles.introContainer}>
           <Text style={styles.introText}>
-            Add installments to complete the 100% payment for the project.
+            Rate the project based on 13 parameters which will be added in project details.
           </Text>
         </View>
 
@@ -279,6 +239,13 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     marginBottom: 8,
   },
+  underline: {
+    width: 330, // Changed from 315 to 330px
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)', // Changed to 25% opacity
+    marginBottom: 8, // Reduced from 16 to 8 to move text up
+    alignSelf: 'center', // Center the line properly
+  },
   subTitle: {
     color: COLORS.textWhite,
     fontSize: 16,
@@ -297,7 +264,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   listContainer: {
-    gap: 18, // Reduced from 24px to 18px spacing between rating items
+    gap: 0, // Reduced from 2 to 0 for no spacing between rating items
   },
 
   // Row Styles
@@ -306,9 +273,10 @@ const styles = StyleSheet.create({
   },
   textRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: 10,
+    justifyContent: 'space-between', // Space between text and number
+    alignItems: 'center', // Center align items vertically
+    marginBottom: 0, // Reduced from 1 to 0 for no spacing from text to slider line
+    paddingHorizontal: 0, // Ensure no extra padding
   },
   label: {
     color: '#F5F5F5',
@@ -316,41 +284,51 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
     letterSpacing: 0.5,
+    textAlign: 'left', // Left align the text labels
+    textAlignVertical: 'center', // Vertically center the text (Android)
+    flex: 1, // Take up available space to push number to right
+    marginLeft: 0, // Ensure text starts at left margin
   },
   scoreValue: {
     color: COLORS.textWhite,
     fontSize: 30,
-    fontWeight: '300',
+    fontWeight: '700', // Changed from '300' to '700' to make numbers thick
     lineHeight: 34,
+    textAlign: 'right', // Ensure numbers are right-aligned
+    marginRight: 0, // Ensure numbers end at right margin
   },
 
   // Slider Styles
   sliderContainer: {
-    height: 40,
+    height: 32, // Reduced from 40 to 32 to match smaller touch targets
     justifyContent: 'center',
     position: 'relative',
+    width: 341, // Set width to 341px for the dotted line
+    alignSelf: 'center', // Center the slider container
   },
   track: {
     position: 'absolute',
     height: 2,
-    left: 0,
-    right: 0,
-    backgroundColor: COLORS.sliderTrack,
+    left: 16, // Start the line at the center of the first dot
+    right: 16, // End the line at the center of the last dot
+    backgroundColor: '#FFFFFF', // Changed from COLORS.sliderTrack to #FFFFFF
   },
   dotsRow: { 
     flexDirection: 'row', 
-    justifyContent: 'space-between' 
+    justifyContent: 'space-between', // This will now align dots with the adjusted line
+    paddingHorizontal: 0, // Remove any padding to ensure dots align with line ends
+    marginHorizontal: 0, // Ensure no extra margin
   },
   touchTarget: {
-    width: 40,
-    height: 40,
+    width: 32, // Reduced from 40 to 32 for smaller touch area
+    height: 32, // Reduced from 40 to 32 for smaller touch area
     alignItems: 'center',
     justifyContent: 'center',
   },
   dot: { 
-    width: 12, 
-    height: 12, 
-    borderRadius: 6 
+    width: 8, // Reduced from 12 to 8 for smaller dots
+    height: 8, // Reduced from 12 to 8 for smaller dots
+    borderRadius: 4 // Reduced from 6 to 4 to match new size
   },
   dotInactive: { 
     backgroundColor: '#cffafe' 
@@ -370,9 +348,9 @@ const styles = StyleSheet.create({
   },
   ring: {
     position: 'absolute',
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 20, // Reduced from 26 to 20 to match smaller dots
+    height: 20, // Reduced from 26 to 20 to match smaller dots
+    borderRadius: 10, // Reduced from 13 to 10 to match new size
     borderWidth: 1.5,
     borderColor: '#fef08a',
   },
@@ -381,17 +359,19 @@ const styles = StyleSheet.create({
   nextButtonContainer: {
     marginTop: 30, // 30px spacing after last content
     marginBottom: 20, // Bottom margin for scroll content
+    alignItems: 'center', // Center the button horizontally
   },
   nextButton: {
     backgroundColor: '#EEFB73',
-    height: 56,
-    borderRadius: 28,
+    width: 343,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   nextButtonText: {
     color: '#000000',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   spacer: { 

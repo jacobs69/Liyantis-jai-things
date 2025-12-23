@@ -2,18 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 
 // --- Constants & Theme ---
@@ -202,7 +202,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Project Name</Text>
             <TextInput 
-              style={styles.input}
+              style={[styles.input, styles.inputFullWidth]}
               value={projectName}
               onChangeText={setProjectName}
               placeholderTextColor={COLORS.textGrey}
@@ -213,7 +213,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Developer</Text>
             <TouchableOpacity 
-              style={styles.dropdownButton}
+              style={[styles.dropdownButton, styles.dropdownFullWidth]}
               onPress={() => setShowDevelopers(true)}
               activeOpacity={0.7}
             >
@@ -229,7 +229,7 @@ export default function AddProjectScreen() {
             <Text style={styles.label}>Location</Text>
             <View style={styles.inputWrapper}>
               <TextInput 
-                style={[styles.input, { paddingRight: 40 }]}
+                style={[styles.input, styles.inputFullWidth, { paddingRight: 40 }]}
                 value={location}
                 onChangeText={setLocation}
                 placeholderTextColor={COLORS.textGrey}
@@ -242,10 +242,10 @@ export default function AddProjectScreen() {
 
           {/* Type & Bedrooms Row */}
           <View style={styles.row}>
-            <View style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Type</Text>
               <TouchableOpacity 
-                style={styles.dropdownButton}
+                style={[styles.dropdownButton, styles.dropdownType]}
                 onPress={() => setShowTypes(true)}
                 activeOpacity={0.7}
               >
@@ -255,10 +255,10 @@ export default function AddProjectScreen() {
                 <Ionicons name="chevron-down" size={20} color={COLORS.textGrey} />
               </TouchableOpacity>
             </View>
-            <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Bedrooms</Text>
               <TextInput 
-                style={[styles.input, { textAlign:'left'}]}
+                style={[styles.input, styles.inputBedroom]}
                 value={bedrooms}
                 onChangeText={setBedrooms}
                 placeholderTextColor={COLORS.textGrey}
@@ -297,10 +297,10 @@ export default function AddProjectScreen() {
 
           {/* Currency & Price Row */}
           <View style={styles.row}>
-            <View style={[styles.fieldContainer, { width: '30%', marginRight: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Currency</Text>
               <TouchableOpacity 
-                style={styles.dropdownButton}
+                style={[styles.dropdownButton, styles.dropdownCurrency]}
                 onPress={() => setShowCurrencies(true)}
                 activeOpacity={0.7}
               >
@@ -310,10 +310,10 @@ export default function AddProjectScreen() {
                 <Ionicons name="chevron-down" size={18} color={COLORS.textGrey} />
               </TouchableOpacity>
             </View>
-            <View style={[styles.fieldContainer, { flex: 1 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Price</Text>
               <TextInput 
-                style={[styles.input, { 
+                style={[styles.input, styles.inputPrice, { 
                   textAlign: 'right', 
                   fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' 
                 }]}
@@ -327,20 +327,20 @@ export default function AddProjectScreen() {
 
           {/* Area Row */}
           <View style={styles.row}>
-            <View style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Area (ft²)</Text>
               <TextInput 
-                style={styles.input}
+                style={[styles.input, styles.inputAreaFt]}
                 value={areaFt}
                 onChangeText={setAreaFt}
                 placeholderTextColor={COLORS.textGrey}
                 keyboardType="numeric"
               />
             </View>
-            <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Area (m²)</Text>
               <TextInput 
-                style={styles.input}
+                style={[styles.input, styles.inputAreaM]}
                 value={areaM}
                 onChangeText={setAreaM}
                 placeholderTextColor={COLORS.textGrey}
@@ -353,7 +353,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>DLD (%)</Text>
             <TextInput 
-              style={styles.input}
+              style={[styles.input, styles.inputFullWidth]}
               value={dld}
               onChangeText={setDld}
               placeholderTextColor={COLORS.textGrey}
@@ -365,7 +365,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Service Charges/ft²</Text>
             <TextInput 
-              style={styles.input}
+              style={[styles.input, styles.inputFullWidth]}
               value={serviceCharge}
               onChangeText={setServiceCharge}
               placeholderTextColor={COLORS.textGrey}
@@ -466,15 +466,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEFB73',
   },
   scrollContent: {
-    padding: 20,
+    paddingHorizontal: 16, // 16px left and right margins
+    paddingVertical: 15, // Keep vertical padding
     paddingBottom: 40, // Normal padding since button is now in scroll content
+    alignItems: 'center', // Center all content in the scroll view
   },
   fieldContainer: {
     marginBottom: 18, // Reduced from 23px to 18px spacing between fields
+    alignItems: 'center', // Center all fields
   },
   row: {
     flexDirection: 'row',
     marginBottom: 0,
+    justifyContent: 'space-between', // Align to edges
+    alignItems: 'flex-start',
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    gap: 9, // Add 9px spacing between boxes
   },
   label: {
     color: '#F5F5F5',
@@ -482,18 +489,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
     marginBottom: 12, // 12px spacing between label and input box
+    alignSelf: 'flex-start', // Align labels to the left of their containers
   },
   labelRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 4,
     marginBottom: 12, // 12px spacing between label and input box
+    alignSelf: 'flex-start', // Align label row to the left
   },
   statusIcon: {
-    marginTop: 1.5, // Slight downward adjustment
+    marginTop: 1.25, // Adjusted up by 0.25 from 1.5
   },
   input: {
-    width: '100%',
     height: 48,
     backgroundColor: 'transparent',
     color: '#F5F5F5',
@@ -506,6 +514,30 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
   },
+  inputFullWidth: {
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+  },
+  inputType: {
+    width: 160.5, // Adjusted for 330px total width with 9px gap: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  inputBedroom: {
+    width: 160.5, // Match Type box width for perfect alignment
+  },
+  inputCurrency: {
+    width: 160.5, // Adjusted for symmetry: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  inputPrice: {
+    width: 160.5, // Match currency box width for perfect alignment
+  },
+  inputAreaFt: {
+    width: 160.5, // Adjusted for symmetry
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  inputAreaM: {
+    width: 160.5, // Adjusted for symmetry
+  },
   inputText: {
     color: '#F5F5F5',
     fontSize: 16,
@@ -514,7 +546,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dropdownButton: {
-    width: '100%',
+    height: 48,
     backgroundColor: 'transparent',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
@@ -524,6 +556,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  dropdownFullWidth: {
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+  },
+  dropdownType: {
+    width: 160.5, // Adjusted for symmetry with 9px gap: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  dropdownCurrency: {
+    width: 160.5, // Adjusted to match: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
   },
   inputWrapper: {
     position: 'relative',
@@ -536,12 +579,13 @@ const styles = StyleSheet.create({
   // Status Buttons
   statusButtonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 8,
+    justifyContent: 'flex-start', // Changed from center to flex-start to align left like Type box
+    width: 330, // Set total width to match location box
   },
   statusButton: {
-    flex: 1,
-    paddingVertical: 10,
+    width: 104, // Adjusted so 3 buttons + 2 gaps (8px each) = 330px: (330-16)/3 = 104.67 ≈ 104
+    height: 48,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -570,17 +614,19 @@ const styles = StyleSheet.create({
   nextButtonContainer: {
     marginTop: 30, // 30px spacing after Service Charges
     marginBottom: 20, // Bottom margin for scroll content
+    alignItems: 'center', // Center the button horizontally
   },
   nextButton: {
     backgroundColor: '#EEFB73',
-    height: 56,
-    borderRadius: 28,
+    width: 343,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   nextButtonText: {
     color: '#000000',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   // Modal Styles
