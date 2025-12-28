@@ -7,30 +7,31 @@ export default function RootLayout() {
     <>
       <Stack
         screenOptions={{
-          animation: 'fade',
-          animationDuration: 200,
+          animation: 'none', // Remove animation to eliminate white flash and delay
+          contentStyle: { backgroundColor: '#181A20' }, // Set dark background to prevent white flash
+          headerShown: false,
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="SplashScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="boarding" options={{ headerShown: false }} />
-        <Stack.Screen name="boardingSlideshow" options={{ headerShown: false }} />
-        <Stack.Screen name="boarding1" options={{ headerShown: false }} />
-        <Stack.Screen name="boarding2" options={{ headerShown: false }} />
-        <Stack.Screen name="boarding3" options={{ headerShown: false }} />
-        <Stack.Screen name="email" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="signup" options={{ headerShown: false }} />
-        <Stack.Screen name="home" options={{ headerShown: false }} />
-        <Stack.Screen name="home2" options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" options={{ headerShown: false }} />
-        <Stack.Screen name="dashboard" options={{ headerShown: false }} />
-        <Stack.Screen name="timeline" options={{ headerShown: false }} />
-        <Stack.Screen name="form1" options={{ headerShown: false }} />
-        <Stack.Screen name="form2" options={{ headerShown: false }} />
-        <Stack.Screen name="form3" options={{ headerShown: false }} />
-        <Stack.Screen name="form4" options={{ headerShown: false }} />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="SplashScreen" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="boarding" />
+        <Stack.Screen name="boardingSlideshow" />
+        <Stack.Screen name="boarding1" />
+        <Stack.Screen name="boarding2" />
+        <Stack.Screen name="boarding3" />
+        <Stack.Screen name="email" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="home" />
+        <Stack.Screen name="home2" />
+        <Stack.Screen name="Profile" />
+        <Stack.Screen name="dashboard" />
+        <Stack.Screen name="timeline" />
+        <Stack.Screen name="form1" />
+        <Stack.Screen name="form2" />
+        <Stack.Screen name="form3" />
+        <Stack.Screen name="form4" />
       </Stack>
       <StatusBar style="light" />
     </>

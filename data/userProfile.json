@@ -1,0 +1,20 @@
+{
+  "user": {
+    "name": "Arpit",
+    "email": "arpit@example.com",
+    "phone": "+971 50 123 4567",
+    "avatar": null,
+    "stats": {
+      "totalProjects": 6,
+      "activeProjects": 4,
+      "soldProjects": 2,
+      "totalInvestment": "15.6mn",
+      "totalROI": "28.5%"
+    },
+    "preferences": {
+      "currency": "AED",
+      "notifications": true,
+      "darkMode": true
+    }
+  }
+}

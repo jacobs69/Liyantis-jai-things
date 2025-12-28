@@ -2,18 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    View
 } from 'react-native';
 
 // --- Constants & Theme ---
@@ -185,7 +185,7 @@ export default function AddProjectScreen() {
           </View>
         </View>
         
-        <View style={{ width: 24 }} /> {/* Spacer for alignment */}
+        <View style={{ width: 24 }} />
       </View>
 
       <KeyboardAvoidingView 
@@ -202,7 +202,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Project Name</Text>
             <TextInput 
-              style={styles.input}
+              style={[styles.input, styles.inputFullWidth]}
               value={projectName}
               onChangeText={setProjectName}
               placeholderTextColor={COLORS.textGrey}
@@ -213,7 +213,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Developer</Text>
             <TouchableOpacity 
-              style={styles.dropdownButton}
+              style={[styles.dropdownButton, styles.dropdownFullWidth]}
               onPress={() => setShowDevelopers(true)}
               activeOpacity={0.7}
             >
@@ -229,7 +229,7 @@ export default function AddProjectScreen() {
             <Text style={styles.label}>Location</Text>
             <View style={styles.inputWrapper}>
               <TextInput 
-                style={[styles.input, { paddingRight: 40 }]}
+                style={[styles.input, styles.inputFullWidth, { paddingRight: 40 }]}
                 value={location}
                 onChangeText={setLocation}
                 placeholderTextColor={COLORS.textGrey}
@@ -242,10 +242,10 @@ export default function AddProjectScreen() {
 
           {/* Type & Bedrooms Row */}
           <View style={styles.row}>
-            <View style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Type</Text>
               <TouchableOpacity 
-                style={styles.dropdownButton}
+                style={[styles.dropdownButton, styles.dropdownType]}
                 onPress={() => setShowTypes(true)}
                 activeOpacity={0.7}
               >
@@ -255,10 +255,10 @@ export default function AddProjectScreen() {
                 <Ionicons name="chevron-down" size={20} color={COLORS.textGrey} />
               </TouchableOpacity>
             </View>
-            <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Bedrooms</Text>
               <TextInput 
-                style={[styles.input, { textAlign:'left'}]}
+                style={[styles.input, styles.inputBedroom]}
                 value={bedrooms}
                 onChangeText={setBedrooms}
                 placeholderTextColor={COLORS.textGrey}
@@ -271,7 +271,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>Status</Text>
-              <Ionicons name="information-circle-outline" size={14} color={COLORS.textGrey} style={{ marginLeft: 4 }} />
+              <Ionicons name="information-circle-outline" size={14} color={COLORS.textGrey} style={styles.statusIcon} />
             </View>
             <View style={styles.statusButtonRow}>
               {['Off-Plan', 'Off-Resale', 'Secondary'].map((s) => (
@@ -297,10 +297,10 @@ export default function AddProjectScreen() {
 
           {/* Currency & Price Row */}
           <View style={styles.row}>
-            <View style={[styles.fieldContainer, { width: '30%', marginRight: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Currency</Text>
               <TouchableOpacity 
-                style={styles.dropdownButton}
+                style={[styles.dropdownButton, styles.dropdownCurrency]}
                 onPress={() => setShowCurrencies(true)}
                 activeOpacity={0.7}
               >
@@ -310,10 +310,10 @@ export default function AddProjectScreen() {
                 <Ionicons name="chevron-down" size={18} color={COLORS.textGrey} />
               </TouchableOpacity>
             </View>
-            <View style={[styles.fieldContainer, { flex: 1 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Price</Text>
               <TextInput 
-                style={[styles.input, { 
+                style={[styles.input, styles.inputPrice, { 
                   textAlign: 'right', 
                   fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' 
                 }]}
@@ -327,20 +327,20 @@ export default function AddProjectScreen() {
 
           {/* Area Row */}
           <View style={styles.row}>
-            <View style={[styles.fieldContainer, { flex: 1, marginRight: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Area (ft²)</Text>
               <TextInput 
-                style={styles.input}
+                style={[styles.input, styles.inputAreaFt]}
                 value={areaFt}
                 onChangeText={setAreaFt}
                 placeholderTextColor={COLORS.textGrey}
                 keyboardType="numeric"
               />
             </View>
-            <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>Area (m²)</Text>
               <TextInput 
-                style={styles.input}
+                style={[styles.input, styles.inputAreaM]}
                 value={areaM}
                 onChangeText={setAreaM}
                 placeholderTextColor={COLORS.textGrey}
@@ -353,7 +353,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>DLD (%)</Text>
             <TextInput 
-              style={styles.input}
+              style={[styles.input, styles.inputFullWidth]}
               value={dld}
               onChangeText={setDld}
               placeholderTextColor={COLORS.textGrey}
@@ -365,7 +365,7 @@ export default function AddProjectScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Service Charges/ft²</Text>
             <TextInput 
-              style={styles.input}
+              style={[styles.input, styles.inputFullWidth]}
               value={serviceCharge}
               onChangeText={setServiceCharge}
               placeholderTextColor={COLORS.textGrey}
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    marginBottom: 12, // 12px spacing between "Add Project" and "Project Name"
+    marginBottom: 6, // Reduced from 12 to 6 to bring header closer to content
   },
   backButton: {
     padding: 4,
@@ -457,42 +457,54 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   progressDot: {
-    width: 20,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#333',
+    width: 27,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#D9D9D9',
   },
   progressActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: '#EEFB73',
   },
   scrollContent: {
-    padding: 20,
+    paddingHorizontal: 16, // 16px left and right margins
+    paddingVertical: 25, // Increased from 15 to 25 to move content down
     paddingBottom: 40, // Normal padding since button is now in scroll content
+    alignItems: 'center', // Center all content in the scroll view
   },
   fieldContainer: {
-    marginBottom: 23, // 23px spacing between fields
+    marginBottom: 12, // Reverted back from 6px to 12px
+    alignItems: 'center', // Center all fields
   },
   row: {
     flexDirection: 'row',
     marginBottom: 0,
+    justifyContent: 'space-between', // Align to edges
+    alignItems: 'flex-start',
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    gap: 9, // Add 9px spacing between boxes
   },
   label: {
-    color: COLORS.textGrey,
+    color: '#F5F5F5',
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
-    marginBottom: 12, // 12px spacing between label and input box
+    marginBottom: 8, // Changed from 4 to 8px gap between project name and box
+    alignSelf: 'flex-start', // Align labels to the left of their containers
   },
   labelRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12, // 12px spacing between label and input box
+    alignItems: 'flex-start',
+    gap: 4,
+    marginBottom: 4, // Reverted back from 1px to 4px
+    alignSelf: 'flex-start', // Align label row to the left
+  },
+  statusIcon: {
+    marginTop: 2, // Increased from 1.25 to 2 to move icon down
   },
   input: {
-    width: '100%',
     height: 48,
     backgroundColor: 'transparent',
-    color: COLORS.textWhite,
+    color: '#F5F5F5',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
     borderRadius: 10,
@@ -502,15 +514,39 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
   },
+  inputFullWidth: {
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+  },
+  inputType: {
+    width: 160.5, // Adjusted for 330px total width with 9px gap: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  inputBedroom: {
+    width: 160.5, // Match Type box width for perfect alignment
+  },
+  inputCurrency: {
+    width: 160.5, // Adjusted for symmetry: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  inputPrice: {
+    width: 160.5, // Match currency box width for perfect alignment
+  },
+  inputAreaFt: {
+    width: 160.5, // Adjusted for symmetry
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  inputAreaM: {
+    width: 160.5, // Adjusted for symmetry
+  },
   inputText: {
-    color: COLORS.textWhite,
+    color: '#F5F5F5',
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
     flex: 1,
   },
   dropdownButton: {
-    width: '100%',
+    height: 48,
     backgroundColor: 'transparent',
     borderColor: '#FFFFFF',
     borderWidth: 0.5,
@@ -520,6 +556,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  dropdownFullWidth: {
+    width: 330, // Changed from 343 to 330 to match form3 top boxes
+  },
+  dropdownType: {
+    width: 160.5, // Adjusted for symmetry with 9px gap: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
+  },
+  dropdownCurrency: {
+    width: 160.5, // Adjusted to match: (330-9)/2 = 160.5
+    marginRight: 0, // Remove margin since we're using gap
   },
   inputWrapper: {
     position: 'relative',
@@ -532,12 +579,13 @@ const styles = StyleSheet.create({
   // Status Buttons
   statusButtonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 8,
+    justifyContent: 'flex-start', // Changed from center to flex-start to align left like Type box
+    width: 330, // Set total width to match location box
   },
   statusButton: {
-    flex: 1,
-    paddingVertical: 10,
+    width: 104, // Adjusted so 3 buttons + 2 gaps (8px each) = 330px: (330-16)/3 = 104.67 ≈ 104
+    height: 48,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -553,8 +601,9 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
   },
   statusButtonText: {
-    fontSize: 13,
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
+    fontWeight: '500',
   },
   statusButtonTextActive: {
     color: COLORS.textWhite,
@@ -565,17 +614,19 @@ const styles = StyleSheet.create({
   nextButtonContainer: {
     marginTop: 30, // 30px spacing after Service Charges
     marginBottom: 20, // Bottom margin for scroll content
+    alignItems: 'center', // Center the button horizontally
   },
   nextButton: {
-    backgroundColor: COLORS.primary,
-    height: 56,
-    borderRadius: 28,
+    backgroundColor: '#EEFB73',
+    width: 343,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   nextButtonText: {
     color: '#000000',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   // Modal Styles

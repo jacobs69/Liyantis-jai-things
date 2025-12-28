@@ -1,8 +1,7 @@
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useRef, useState } from "react";
 import {
+  Animated,
   Image,
   SafeAreaView,
   ScrollView,
@@ -12,429 +11,355 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+// Note: If not using Expo Router, remove this import and the 'router' variable
+import { useRouter } from "expo-router";
 
-export default function ProfileScreen() {
-  const router = useRouter();
-  const [selectedCurrency, setSelectedCurrency] = useState('AED');
-  const [selectedUnit, setSelectedUnit] = useState('ft²');
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const primaryCurrencies = ['AED', 'USD', 'EUR', 'RUB', 'CNY', 'INR'];
-  const allCurrencies = [...primaryCurrencies, 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'HKD', 'NZD', 'SGD', 'KRW', 'TRY', 'BRL', 'ZAR'];
-  const visibleCurrencies = isExpanded ? allCurrencies : primaryCurrencies;
-
-  return (
-    <>
-      <StatusBar barStyle="light-content" backgroundColor="#181A20" />
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <Header />
-          <View style={styles.contentContainer}>
-            <ProfileSummary />
-            <PersonalInfoSection />
-            <PreferencesSection 
-              selectedCurrency={selectedCurrency}
-              setSelectedCurrency={setSelectedCurrency}
-              selectedUnit={selectedUnit}
-              setSelectedUnit={setSelectedUnit}
-              isExpanded={isExpanded}
-              setIsExpanded={setIsExpanded}
-              visibleCurrencies={visibleCurrencies}
-            />
-          </View>
-        </ScrollView>
-
-        {/* Bottom Navigation */}
-        <View style={styles.bottomNav}>
-          <TouchableOpacity onPress={() => router.push("/home")}>
-            <Ionicons name="home-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Feather name="file-text" size={23} color="#fff" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.centerButton}>
-            <Text style={styles.plus}>+</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Feather name="search" size={23} color="#fff" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => router.push("/Profile")}>
-            <Ionicons name="person-circle-outline" size={28} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </>
-  );
+// Helper component for the Menu Cards to keep code clean
+interface MenuCardProps {
+  icon: React.ReactNode;
+  title: string;
 }
 
-// --- Components ---
-const Header = () => {
-  return (
-    <View style={styles.headerContainer}>
-      <LinearGradient
-        colors={['#d1d5db', '#9ca3af']} // gray-300 to gray-400
-        style={styles.headerGradient}
-      />
+const MenuCard = ({ icon, title }: MenuCardProps) => (
+  <TouchableOpacity style={styles.menuCard} activeOpacity={0.8}>
+    <View style={styles.menuIconContainer}>
+      {icon}
     </View>
-  );
-};
+    <Text style={styles.menuCardText}>{title}</Text>
+    <Ionicons name="chevron-forward" size={22} color="#F1FE74" />
+  </TouchableOpacity>
+);
 
-const ProfileSummary = () => {
+export default function ProfileScreen() {
+  // Use a try-catch or mock for router to ensure it doesn't crash if not in a Router context
+  let router;
+  try {
+    router = useRouter();
+  } catch (e) {
+    router = { push: () => console.log("Navigating..."), back: () => console.log("Back...") };
+  }
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+
+  const toggleMenu = () => {
+    if (!menuVisible) {
+      setMenuVisible(true);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.95,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setMenuVisible(false));
+    }
+  };
+
   return (
-    <View style={styles.summaryContainer}>
-      <View style={styles.avatarWrapper}>
-        <View style={styles.avatarContainer}>
-          <Image 
-            source={{ uri: "https://api.dicebear.com/7.x/avataaars/png?seed=Arpit&backgroundColor=b6e3f4" }} 
-            style={styles.avatarImage}
-          />
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* --- Header --- */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Profile</Text>
         </View>
-        <TouchableOpacity style={styles.editButton}>
-          <Ionicons name="pencil" size={12} color="#9ca3af" />
+        
+        <TouchableOpacity 
+          onPress={toggleMenu}
+          style={styles.menuButton}
+        >
+          <Ionicons name="menu" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-      <Text style={styles.nameText}>Arpit Aryan Gupta</Text>
-      <View style={styles.statsContainer}>
-        <Text style={styles.statText}>Projects: <Text style={styles.statHighlight}>12</Text></Text>
-        <Text style={styles.statText}>Sold: <Text style={styles.statHighlight}>5</Text></Text>
-      </View>
-    </View>
-  );
-};
 
-const PersonalInfoSection = () => {
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Personal information</Text>
-      <View style={styles.card}>
-        <InfoItem icon="mail-outline" label="arpit@liyantis.com" />
-        <View style={styles.divider} />
-        <InfoItem icon="call-outline" label="1234567890" />
-        <View style={styles.divider} />
-        <InfoItem icon="location-outline" label="Dubai" />
-      </View>
-    </View>
-  );
-};
-
-const InfoItem = ({ icon, label }: { icon: string; label: string }) => {
-  return (
-    <TouchableOpacity style={styles.infoItem} activeOpacity={0.7}>
-      <View style={styles.infoItemLeft}>
-        <Ionicons name={icon as any} size={18} color="#9ca3af" />
-        <Text style={styles.infoLabel}>{label}</Text>
-      </View>
-      <Ionicons name="pencil" size={14} color="#6b7280" />
-    </TouchableOpacity>
-  );
-};
-
-const PreferencesSection = ({ 
-  selectedCurrency, 
-  setSelectedCurrency, 
-  selectedUnit, 
-  setSelectedUnit, 
-  isExpanded, 
-  setIsExpanded, 
-  visibleCurrencies 
-}: {
-  selectedCurrency: string;
-  setSelectedCurrency: (currency: string) => void;
-  selectedUnit: string;
-  setSelectedUnit: (unit: string) => void;
-  isExpanded: boolean;
-  setIsExpanded: (expanded: boolean) => void;
-  visibleCurrencies: string[];
-}) => {
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Preferences</Text>
-      <View style={styles.cardPadding}>
-        {/* Currency Section */}
-        <View style={styles.preferenceGroup}>
-          <Text style={styles.preferenceLabel}>Currency</Text>
-          <View style={styles.chipContainer}>
-            {visibleCurrencies.map((curr: string) => (
-              <Chip 
-                key={curr} 
-                label={curr} 
-                isSelected={selectedCurrency === curr} 
-                onClick={() => setSelectedCurrency(curr)}
-              />
-            ))}
-          </View>
-          {/* Show More Dropdown Trigger */}
-          <TouchableOpacity 
-            style={styles.showMoreContainer}
-            onPress={() => setIsExpanded(!isExpanded)}
-            activeOpacity={0.7}
+      
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Dropdown Menu Overlay */}
+        {menuVisible && (
+          <Animated.View 
+            style={[
+              styles.dropdownMenu,
+              { 
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }]
+              }
+            ]}
           >
-            <View style={styles.lineDivider} />
-            <View style={styles.showMoreContent}>
-              <Text style={styles.showMoreText}>
-                {isExpanded ? 'Show less' : 'Show more currencies'}
-              </Text>
-              <Ionicons 
-                name={isExpanded ? "chevron-up" : "chevron-down"} 
-                size={14} 
-                color="#9ca3af" 
-              />
-            </View>
-            <View style={styles.lineDivider} />
+            <TouchableOpacity style={styles.dropdownItem} activeOpacity={0.7}>
+              <Text style={styles.dropdownText}>Privacy Policy</Text>
+              <Ionicons name="chevron-forward" size={20} color="#F1FE74" />
+            </TouchableOpacity>
+            <View style={styles.dropdownDivider} />
+            <TouchableOpacity style={styles.dropdownItem} activeOpacity={0.7}>
+              <Text style={styles.dropdownText}>Terms of Service</Text>
+              <Ionicons name="chevron-forward" size={20} color="#F1FE74" />
+            </TouchableOpacity>
+            <View style={styles.dropdownDivider} />
+            <TouchableOpacity style={styles.dropdownItem} activeOpacity={0.7}>
+              <Text style={styles.dropdownText}>Sign Out</Text>
+              <Ionicons name="chevron-forward" size={20} color="#F1FE74" />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+
+        {/* Profile Info */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileIconContainer}>
+            <Ionicons name="person-circle" size={75} color="#F1FE74" />
+          </View>
+          <Text style={styles.profileName}>Arpit Aryan Gupta</Text>
+          <Text style={styles.profileEmail}>arpit@liyantis.com</Text>
+          <TouchableOpacity style={styles.editButton} activeOpacity={0.7}>
+            <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Measure Units Section */}
-        <View>
-          <Text style={styles.preferenceLabel}>Measure units</Text>
-          <View style={styles.chipContainer}>
-            <Chip 
-              label="ft²" 
-              isSelected={selectedUnit === 'ft²'} 
-              onClick={() => setSelectedUnit('ft²')}
-            />
-            <Chip 
-              label="m²" 
-              isSelected={selectedUnit === 'm²'} 
-              onClick={() => setSelectedUnit('m²')}
-            />
+        {/* Stats */}
+        <View style={styles.statsSection}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>42</Text>
+            <Text style={styles.statLabel}>Projects Created</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>7</Text>
+            <Text style={styles.statLabel}>Sold Projects</Text>
           </View>
         </View>
-      </View>
-    </View>
-  );
-};
 
-const Chip = ({ label, isSelected, onClick }: { label: string; isSelected: boolean; onClick: () => void }) => {
-  return (
-    <TouchableOpacity
-      onPress={onClick}
-      style={[
-        styles.chip,
-        isSelected ? styles.chipSelected : styles.chipUnselected
-      ]}
-      activeOpacity={0.8}
-    >
-      <Text style={[
-        styles.chipText,
-        isSelected ? styles.chipTextSelected : styles.chipTextUnselected
-      ]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
+        {/* Menu Cards */}
+        <View style={styles.menuSection}>
+          <MenuCard icon={<Ionicons name="heart" size={22} color="#000" />} title="Saved Projects" />
+          <MenuCard icon={<Ionicons name="headset-outline" size={22} color="#000" />} title="Contact Support" />
+          <MenuCard icon={<Ionicons name="settings-outline" size={22} color="#000" />} title="App Settings" />
+        </View>
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
+          <Image 
+            source={require("../assets/images/Home_fill.png")} 
+            style={{ width: 26, height: 26 }}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="heart-outline" size={26} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.addButton}
+          activeOpacity={0.9}
+          onPress={() => router.push("/form1")}
+        >
+          <Ionicons name="add-circle" size={56} color="#F1FE74" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="document-text-outline" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/Profile")} style={styles.navItem}>
+          <Ionicons name="person-circle-outline" size={28} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#181A20',
+    paddingTop: 50,
   },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    marginTop: -48, // Negative margin to overlap header
-    paddingBottom: 40,
-  },
-  // Header
-  headerContainer: {
-    height: 192, // h-48
-    width: '100%',
-    position: 'relative',
-  },
-  headerGradient: {
-    flex: 1,
-  },
-  // Profile Summary
-  summaryContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  avatarWrapper: {
-    position: 'relative',
-  },
-  avatarContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    borderWidth: 4,
-    borderColor: '#181A20',
-    overflow: 'hidden',
-    backgroundColor: '#4b5563',
-    elevation: 5, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  editButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#2c2d33',
-    padding: 6,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#4b5563',
-  },
-  nameText: {
-    marginTop: 12,
-    fontSize: 20,
-    fontWeight: '600',
-    color: 'white',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    gap: 24,
-    marginTop: 8,
-  },
-  statText: {
-    fontSize: 14,
-    color: '#9ca3af',
-  },
-  statHighlight: {
-    color: 'white',
-  },
-  // Sections
-  sectionContainer: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '500',
-    marginBottom: 12,
-    color: 'white',
-  },
-  card: {
-    backgroundColor: '#232429',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  cardPadding: {
-    backgroundColor: '#232429',
-    borderRadius: 12,
-    padding: 20,
-  },
-  // Info Items
-  infoItem: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: 10,
   },
-  infoItemLeft: {
+  backButton: {
+    padding: 4,
+  },
+  headerTitleContainer: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 20, // Increased from 18 to 20
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  menuButton: {
+    padding: 4,
+  },
+  scrollContent: {
+    paddingBottom: 20, // Reduced from 100 to 20
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    right: 16,
+    top: 10,
+    backgroundColor: '#1B1D27',
+    paddingVertical: 4,
+    width: 190,
+    borderRadius: 12,
+    zIndex: 50,
+    borderWidth: 1,
+    borderColor: '#374151',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  dropdownItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  infoLabel: {
-    fontSize: 14,
-    color: '#d1d5db', // gray-300
-    marginLeft: 16,
+  dropdownText: {
+    color: 'white',
+    fontSize: 15,
   },
-  divider: {
+  dropdownDivider: {
     height: 1,
-    backgroundColor: '#374151', // gray-700
-    marginHorizontal: 16,
-    opacity: 0.5,
+    backgroundColor: '#333',
+    marginHorizontal: 12,
   },
-  // Preferences
-  preferenceGroup: {
-    marginBottom: 24,
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 16, // Reduced from 24 to 16
+    marginTop: 20, // Reduced from 47 to 20
   },
-  preferenceLabel: {
+  profileIconContainer: {
+    marginBottom: 8, // Reduced from 12 to 8
+  },
+  profileName: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  profileEmail: {
+    color: '#A3A3A3',
+    marginBottom: 18, // Increased from 12 to 18 for more spacing before Edit Profile button
     fontSize: 14,
-    color: '#9ca3af', // gray-400
-    marginBottom: 12,
   },
-  chipContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-  },
-  // Chips
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+  editButton: {
     borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 8,
   },
-  chipSelected: {
-    backgroundColor: '#F1FE74', // Using existing profile color
-    borderColor: '#F1FE74',
-  },
-  chipUnselected: {
-    backgroundColor: 'transparent',
-    borderColor: '#4b5563', // gray-600
-  },
-  chipText: {
-    fontSize: 14,
+  editButtonText: {
+    color: 'white',
     fontWeight: '500',
   },
-  chipTextSelected: {
-    color: '#111827', // gray-900
-  },
-  chipTextUnselected: {
-    color: '#d1d5db', // gray-300
-  },
-  // Show More
-  showMoreContainer: {
+  statsSection: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 32,
+    marginBottom: 20, // Increased from 4 to 20 to add spacing before menu cards
+  },
+  statItem: {
     alignItems: 'center',
-    gap: 12,
+  },
+  statNumber: {
+    color: 'white',
+    fontSize: 23, // Changed from 24 to 23
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    color: '#A3A3A3',
     marginTop: 4,
+    fontSize: 14, // Reduced from 16 to 14
+    letterSpacing: 1,
+    // Removed textTransform: 'uppercase' to allow normal case
   },
-  lineDivider: {
-    height: 1,
-    flex: 1,
-    backgroundColor: '#374151', // gray-700
+  menuSection: {
+    paddingBottom: 20, // Reduced from 40 to 20
   },
-  showMoreContent: {
+  menuCard: {
     flexDirection: 'row',
+    backgroundColor: '#27292D', // Changed from #1B1D27 to #27292D
+    padding: 12, // Reduced from 16 to 12
+    marginHorizontal: 20,
+    borderRadius: 12,
     alignItems: 'center',
-    gap: 4,
+    marginBottom: 19, // Restored to 19px spacing between boxes
   },
-  showMoreText: {
-    fontSize: 12,
-    color: '#9ca3af', // gray-400
+  menuIconContainer: {
+    width: 38,
+    height: 38,
+    backgroundColor: '#F1FE74',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
-
-  /* BOTTOM NAV */
+  menuCardText: {
+    flex: 1,
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+  },
   bottomNav: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 75,
-    backgroundColor: "#1A1C20",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    height: 75, // Changed from 85 to 75 to match home page
+    backgroundColor: '#27292D', // Changed to match home page
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center', // Changed from flex-start to center to match home page
+    borderTopLeftRadius: 20, // Changed from 30 to 20 to match home page
+    borderTopRightRadius: 20, // Changed from 30 to 20 to match home page
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  centerButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#F1FE74",
-    justifyContent: "center",
-    alignItems: "center",
+  navItem: {
+    alignItems: 'center',
+    // Removed fixed width to match home page spacing
   },
-  plus: {
-    fontSize: 22,
-    color: "#000",
-    marginTop: -1,
+  addButton: {
+    width: 56, // Changed back to 56 to match home page
+    height: 56, // Changed back to 56 to match home page
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,24 +1,25 @@
-import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 const COLORS = {
-  background: '#181A20', // Slightly softer dark background
-  primary: '#DFFF4F',    // The specific Lime/Yellow from the screenshot
+  background: '#181A20',
+  primary: '#DFFF4F',
   textWhite: '#FFFFFF',
   textGrey: '#B3B3B3',
   searchBg: '#1C1C1E',
   cardText: '#1A1A1A',
 };
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -84,11 +85,11 @@ export default function HomeScreen() {
       {/* BOTTOM TAB BAR */}
       <View style={styles.tabBar}>
         <TouchableOpacity>
-          <Ionicons name="home-outline" size={24} color="#fff" />
+          <Ionicons name="home-outline" size={26} color="#fff" />
         </TouchableOpacity>
 
         <TouchableOpacity>
-          <Feather name="file-text" size={23} color="#fff" />
+          <Ionicons name="heart-outline" size={26} color="#fff" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.centerButton} onPress={() => router.push("/form1")}>
@@ -96,7 +97,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity>
-          <Feather name="search" size={23} color="#fff" />
+          <Ionicons name="document-text-outline" size={24} color="#fff" />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/Profile")}>
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 75,
-    backgroundColor: "#1A1C20",
+    backgroundColor: "#27292D",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
@@ -241,9 +242,17 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F1FE74",
+    backgroundColor: "#F0FD73",
     justifyContent: "center",
     alignItems: "center",
   },
-  plus: { fontSize: 22, color: "#000", marginTop: -1 },
+  plus: { 
+    fontSize: 34, // Increased from 32 to 34
+    color: "#000", 
+    marginTop: -2, 
+    fontWeight: "900",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowRadius: 0.5,
+  },
 });

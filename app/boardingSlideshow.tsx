@@ -39,7 +39,6 @@ export default function BoardingSlideshow() {
   ];
 
   // Auto-scroll removed for direct user interaction
-
   const handleScroll = (event: any) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const index = Math.round(scrollPosition / width);
@@ -51,7 +50,7 @@ export default function BoardingSlideshow() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       {/* FULL SCREEN CAROUSEL */}
       <ScrollView
         ref={scrollViewRef}
@@ -71,12 +70,11 @@ export default function BoardingSlideshow() {
               source={slide.image}
               style={styles.backgroundImage}
             />
-            
             {/* GRADIENT OVERLAY FOR TEXT READABILITY */}
             <LinearGradient
-                colors={['transparent', '#181A20']}
-                style={styles.imageGradient}
-                locations={[0.4, 1]}
+              colors={['transparent', '#181A20']}
+              style={styles.imageGradient}
+              locations={[0.4, 1]}
             />
           </View>
         ))}
@@ -84,56 +82,53 @@ export default function BoardingSlideshow() {
 
       {/* CONTENT LAYER (Text, Dots, Buttons) */}
       <View style={styles.contentOverlay}>
-        
         {/* DYNAMIC TITLE */}
         <View style={styles.textContainer}>
-            <Text style={styles.title}>{slides[currentIndex].title}</Text>
-            
-            {/* DOTS INDICATOR */}
-            <View style={styles.dotsContainer}>
+          <Text style={styles.title}>{slides[currentIndex].title}</Text>
+
+          {/* DOTS INDICATOR */}
+          <View style={styles.dotsContainer}>
             {slides.map((_, index) => (
-                <View
+              <View
                 key={index}
                 style={[
-                    styles.dot,
-                    { 
-                        backgroundColor: currentIndex === index ? "#fff" : "#4A4B55",
-                        opacity: currentIndex === index ? 1 : 1
-                    },
+                  styles.dot,
+                  {
+                    backgroundColor: currentIndex === index ? "#fff" : "#4A4B55",
+                    opacity: currentIndex === index ? 1 : 1,
+                  },
                 ]}
-                />
+              />
             ))}
-            </View>
+          </View>
         </View>
 
         {/* BOTTOM ACTION AREA */}
         <View style={styles.actionContainer}>
-            {/* PRIMARY BUTTON */}
-            <TouchableOpacity
-                style={styles.primaryButton}
-                activeOpacity={0.8}
-                onPress={() => router.push("/login")} // Adjust route as needed
-            >
-                <Feather name="mail" size={20} color="#000" style={{marginRight: 10}}/>
-                <Text style={styles.primaryButtonText}>Continue with Email</Text>
+          {/* PRIMARY BUTTON */}
+          <TouchableOpacity
+            style={styles.primaryButton}
+            activeOpacity={0.8}
+            onPress={() => router.push("/login")} // Adjust route as needed
+          >
+            <Feather name="mail" size={20} color="#000" style={{marginRight: 10}}/>
+            <Text style={styles.primaryButtonText}>Continue with Email</Text>
+          </TouchableOpacity>
+
+          {/* SOCIAL BUTTONS */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={styles.socialButton}>
+              <AntDesign name="google" size={24} color="#FF968E" /> 
             </TouchableOpacity>
+            <TouchableOpacity style={styles.socialButton}>
+              <FontAwesome name="apple" size={26} color="#fff" />
+            </TouchableOpacity>
+          </View>
 
-            {/* SOCIAL BUTTONS */}
-            <View style={styles.socialRow}>
-                <TouchableOpacity style={styles.socialButton}>
-                    <AntDesign name="google" size={24} color="#FF968E" /> 
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.socialButton}>
-                    <FontAwesome name="apple" size={26} color="#fff" />
-                </TouchableOpacity>
-            </View>
-
-            {/* FOOTER TEXT */}
-            <Text style={styles.termsText}>
-                By continuing you agree Liyantis's Terms of{"\n"}
-                Services & Privacy Policy
-            </Text>
+          {/* FOOTER TEXT */}
+          <Text style={styles.termsText}>
+            By continuing you agree Liyantis's Terms of{"\n"}Services & Privacy Policy
+          </Text>
         </View>
       </View>
     </View>
@@ -160,8 +155,6 @@ const styles = StyleSheet.create({
     right: 0,
     height: height * 0.65,
   },
-
-
   contentOverlay: {
     position: 'absolute',
     top: 0,
@@ -216,16 +209,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  
   socialRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 20,
     marginBottom: 30,
-},
-
-
+  },
   socialButton: {
     width: 130,
     height: 55,
@@ -235,8 +225,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent", // same as screenshot
     justifyContent: "center",
     alignItems: "center",
-},
-
+  },
   termsText: {
     color: "#6B6C78",
     fontSize: 12,
