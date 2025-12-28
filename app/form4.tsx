@@ -47,13 +47,6 @@ const categories: Category[] = [
   { id: 'resale', label: 'Resale', initial: 3 },
 ];
 
-// --- Selection Ring ---
-const SelectionRing = () => {
-  return (
-    <View style={styles.ring} />
-  );
-};
-
 // --- Slider ---
 interface CustomSliderProps {
   value: number;
@@ -72,7 +65,7 @@ const CustomSlider = ({ value, onChange }: CustomSliderProps) => (
             onPress={() => onChange(step)}
             style={styles.touchTarget}
           >
-            {isSelected && <SelectionRing />}
+            {isSelected && <View style={styles.ring} />}
             <View
               style={[
                 styles.dot,
@@ -106,12 +99,8 @@ const ScoreRow = ({ label, value, onChange }: ScoreRowProps) => (
 // --- Screen ---
 export default function RatingCardScreen() {
   const router = useRouter();
-
   const [scores, setScores] = useState<Record<string, number>>(() =>
-    categories.reduce(
-      (acc, cat) => ({ ...acc, [cat.id]: cat.initial }),
-      {}
-    )
+    categories.reduce((acc, cat) => ({ ...acc, [cat.id]: cat.initial }), {})
   );
 
   const handleScoreChange = (id: string, value: number) => {
@@ -138,7 +127,9 @@ export default function RatingCardScreen() {
           </View>
         </View>
 
-        <View style={styles.spacer} />
+        <TouchableOpacity onPress={() => router.push('/homeRouter')}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Content */}
@@ -151,12 +142,9 @@ export default function RatingCardScreen() {
           <Text style={styles.optionalText}>Optional</Text>
         </View>
 
-        {/* White line under Score Project */}
-        <View style={styles.underline} />
-
         <View style={styles.introContainer}>
           <Text style={styles.introText}>
-            Rate the project based on 13 parameters which will be added in project details.
+            Add installments to complete the 100% payment for the project.
           </Text>
         </View>
 
@@ -174,9 +162,9 @@ export default function RatingCardScreen() {
         <View style={styles.nextButtonContainer}>
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={() => router.push('/home')}
+            onPress={() => router.push('/homeRouter')}
           >
-            <Text style={styles.nextButtonText}>Skip</Text>
+            <Text style={styles.nextButtonText}>Add property</Text>
           </TouchableOpacity>
         </View>
 
@@ -198,34 +186,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginBottom: 10,
   },
-  backButton: { 
-    padding: 4 
-  },
-  headerTitleContainer: { 
-    alignItems: 'center' 
-  },
+  headerTitleContainer: { alignItems: 'center' },
   headerTitle: {
     color: COLORS.textWhite,
-    fontSize: 16,
     fontWeight: '700',
     marginBottom: 6,
   },
-  progressBar: { 
-    flexDirection: 'row', 
-    gap: 4 
+  skipText: {
+    color: COLORS.textWhite,
+    fontSize: 16,
+    fontWeight: '600',
   },
+  progressBar: { flexDirection: 'row', gap: 4 },
   progressDot: {
     width: 27,
     height: 7,
     borderRadius: 3.5,
     backgroundColor: '#D9D9D9',
   },
-  progressActive: { 
-    backgroundColor: '#EEFB73' 
-  },
+  progressActive: { backgroundColor: '#EEFB73' },
 
   // Content Styles
   scrollContent: {
@@ -239,13 +219,6 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     marginBottom: 8,
   },
-  underline: {
-    width: 330, // Changed from 315 to 330px
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)', // Changed to 25% opacity
-    marginBottom: 8, // Reduced from 16 to 8 to move text up
-    alignSelf: 'center', // Center the line properly
-  },
   subTitle: {
     color: COLORS.textWhite,
     fontSize: 16,
@@ -256,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   introContainer: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   introText: {
     color: COLORS.textGrey,
@@ -264,19 +237,18 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   listContainer: {
-    gap: 0, // Reduced from 2 to 0 for no spacing between rating items
+    gap: 18,
   },
 
   // Row Styles
   rowContainer: {
-    marginBottom: 18, // Reduced from 24px to 18px spacing
+    marginBottom: 18,
   },
   textRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Space between text and number
-    alignItems: 'center', // Center align items vertically
-    marginBottom: 0, // Reduced from 1 to 0 for no spacing from text to slider line
-    paddingHorizontal: 0, // Ensure no extra padding
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: 10,
   },
   label: {
     color: '#F5F5F5',
@@ -284,100 +256,59 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
     letterSpacing: 0.5,
-    textAlign: 'left', // Left align the text labels
-    textAlignVertical: 'center', // Vertically center the text (Android)
-    flex: 1, // Take up available space to push number to right
-    marginLeft: 0, // Ensure text starts at left margin
   },
   scoreValue: {
     color: COLORS.textWhite,
     fontSize: 30,
-    fontWeight: '700', // Changed from '300' to '700' to make numbers thick
+    fontWeight: '300',
     lineHeight: 34,
-    textAlign: 'right', // Ensure numbers are right-aligned
-    marginRight: 0, // Ensure numbers end at right margin
   },
 
   // Slider Styles
   sliderContainer: {
-    height: 32, // Reduced from 40 to 32 to match smaller touch targets
+    height: 40,
     justifyContent: 'center',
     position: 'relative',
-    width: 341, // Set width to 341px for the dotted line
-    alignSelf: 'center', // Center the slider container
   },
   track: {
     position: 'absolute',
     height: 2,
-    left: 16, // Start the line at the center of the first dot
-    right: 16, // End the line at the center of the last dot
-    backgroundColor: '#FFFFFF', // Changed from COLORS.sliderTrack to #FFFFFF
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.sliderTrack,
   },
-  dotsRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', // This will now align dots with the adjusted line
-    paddingHorizontal: 0, // Remove any padding to ensure dots align with line ends
-    marginHorizontal: 0, // Ensure no extra margin
-  },
+  dotsRow: { flexDirection: 'row', justifyContent: 'space-between' },
   touchTarget: {
-    width: 32, // Reduced from 40 to 32 for smaller touch area
-    height: 32, // Reduced from 40 to 32 for smaller touch area
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dot: { 
-    width: 8, // Reduced from 12 to 8 for smaller dots
-    height: 8, // Reduced from 12 to 8 for smaller dots
-    borderRadius: 4 // Reduced from 6 to 4 to match new size
-  },
-  dotInactive: { 
-    backgroundColor: '#cffafe' 
-  },
+  dot: { width: 12, height: 12, borderRadius: 6 },
+  dotInactive: { backgroundColor: '#cffafe' },
   dotSelected: {
     backgroundColor: '#a5f3fc',
     ...Platform.select({
-      ios: { 
-        shadowColor: '#a5f3fc', 
-        shadowOpacity: 0.8, 
-        shadowRadius: 5 
-      },
-      android: { 
-        elevation: 5 
-      },
+      ios: { shadowColor: '#a5f3fc', shadowOpacity: 0.8, shadowRadius: 5 },
+      android: { elevation: 5 },
     }),
   },
   ring: {
     position: 'absolute',
-    width: 20, // Reduced from 26 to 20 to match smaller dots
-    height: 20, // Reduced from 26 to 20 to match smaller dots
-    borderRadius: 10, // Reduced from 13 to 10 to match new size
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 1.5,
     borderColor: '#fef08a',
   },
-
-  // Button Styles
-  nextButtonContainer: {
-    marginTop: 30, // 30px spacing after last content
-    marginBottom: 20, // Bottom margin for scroll content
-    alignItems: 'center', // Center the button horizontally
-  },
+  nextButtonContainer: { marginTop: 30 },
   nextButton: {
     backgroundColor: '#EEFB73',
-    width: 343,
-    height: 40,
-    borderRadius: 20,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nextButtonText: {
-    color: '#000000',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  spacer: { 
-    width: 24 
-  },
-  bottomPadding: { 
-    height: 80 
-  },
+  nextButtonText: { fontWeight: '700' },
+  bottomPadding: { height: 80 },
 });
