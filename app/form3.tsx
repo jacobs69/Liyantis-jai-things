@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 // --- Constants & Theme ---
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    paddingTop: 50,
+    paddingTop: 50, // Reverted back to 50 to keep header spacing as before
   },
   header: {
     flexDirection: 'row',
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20, // Changed from 18px to 20px left and right margins
-    paddingVertical: 20, // Keep vertical padding
+    paddingVertical: 10, // Reduced from 20 to 10 for less top spacing
     paddingBottom: 40, // Normal padding since button is now in scroll content
     alignItems: 'center', // Center all content
   },
@@ -233,8 +233,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   strategyInputContainer: {
-    width: 153, // Increased to fit within 315px total width with 9px gap: (315-9)/2 = 153
-    height: 60, // Increased from 48 to 60 to accommodate larger text
+    width: 153, // Reverted back to 153
+    height: 47, // Changed from 50 to 47
     backgroundColor: 'transparent',
     borderWidth: 0.5,
     borderColor: '#FFFFFF',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   strategyInput: {
     color: '#F5F5F5',
-    fontSize: 26, // Increased from 22 to 26 for larger text
+    fontSize: 22, // Changed from 20 to 22
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
     textAlign: 'center',
@@ -267,10 +267,11 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: COLORS.border,
-    marginVertical: 1, // Reduced from 2 to 1 to move Exit Strategies slightly up
+    marginVertical: 0, // Reduced to 0 to move Exit Strategies further up
   },
   sectionHeader: {
     marginBottom: 20, // Changed to 20 to match the fieldGroup spacing
+    marginTop: 10, // Reduced top margin to move Exit Strategies up
   },
   exitStrategiesUnderline: {
     width: 330, // Changed from 343 to 330 to match the input boxes above

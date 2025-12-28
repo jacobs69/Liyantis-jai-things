@@ -1,20 +1,20 @@
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  PanResponder,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Dimensions,
+    FlatList,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    PanResponder,
+    Platform,
+    Pressable,
+    SafeAreaView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 
 // --- Constants ---
@@ -710,7 +710,15 @@ const styles = StyleSheet.create({
   // Bottom Nav styles
   tabBar: { position: "absolute", bottom: 0, left: 0, right: 0, height: 75, backgroundColor: "#27292D", flexDirection: "row", justifyContent: "space-around", alignItems: "center", borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 10 },
   centerButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.highlight, justifyContent: "center", alignItems: "center", },
-  plus: { fontSize: 32, color: "#000", marginTop: -2 },
+  plus: { 
+    fontSize: 34, // Increased from 32 to 34
+    color: "#000", 
+    marginTop: -2, 
+    fontWeight: "900",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowRadius: 0.5,
+  },
 
   // Carousel Styles
   carouselContainer: { flex: 1, justifyContent: 'flex-end', marginBottom: 0 },

@@ -347,8 +347,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   plus: { 
-    fontSize: 22, 
+    fontSize: 24, // Increased from 22 to 24
     color: "#000", 
-    marginTop: -1 
+    fontWeight: "900",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowRadius: 0.5,
   },
 });

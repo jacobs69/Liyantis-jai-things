@@ -1,147 +1,365 @@
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useRef, useState } from "react";
 import {
   Animated,
   Image,
+  SafeAreaView,
   ScrollView,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+// Note: If not using Expo Router, remove this import and the 'router' variable
+import { useRouter } from "expo-router";
+
+// Helper component for the Menu Cards to keep code clean
+interface MenuCardProps {
+  icon: React.ReactNode;
+  title: string;
+}
+
+const MenuCard = ({ icon, title }: MenuCardProps) => (
+  <TouchableOpacity style={styles.menuCard} activeOpacity={0.8}>
+    <View style={styles.menuIconContainer}>
+      {icon}
+    </View>
+    <Text style={styles.menuCardText}>{title}</Text>
+    <Ionicons name="chevron-forward" size={22} color="#F1FE74" />
+  </TouchableOpacity>
+);
 
 export default function ProfileScreen() {
-  const router = useRouter();
+  // Use a try-catch or mock for router to ensure it doesn't crash if not in a Router context
+  let router;
+  try {
+    router = useRouter();
+  } catch (e) {
+    router = { push: () => console.log("Navigating..."), back: () => console.log("Back...") };
+  }
+
   const [menuVisible, setMenuVisible] = useState(false);
-  const fadeAnim = new Animated.Value(0);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
   const toggleMenu = () => {
     if (!menuVisible) {
       setMenuVisible(true);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }).start(() => setMenuVisible(false));
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.95,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setMenuVisible(false));
     }
   };
 
   return (
-    <View className="flex-1 bg-[#181A20] pt-16">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="flex-row justify-between px-5 mb-2.5 items-center">
-          <Ionicons name="arrow-back" size={22} color="#fff" />
-          <Text className="text-white text-xl font-semibold">Profile</Text>
-          <TouchableOpacity onPress={toggleMenu}>
-            <Ionicons name="menu" size={26} color="#fff" />
-          </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* --- Header --- */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Profile</Text>
         </View>
+        
+        <TouchableOpacity 
+          onPress={toggleMenu}
+          style={styles.menuButton}
+        >
+          <Ionicons name="menu" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
 
-        {/* Dropdown Menu */}
+      
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Dropdown Menu Overlay */}
         {menuVisible && (
-          <Animated.View
-            className="absolute right-6 top-[90px] bg-[#1B1D27] py-1 w-[190px] rounded-xl z-30"
-            style={{ opacity: fadeAnim }}
+          <Animated.View 
+            style={[
+              styles.dropdownMenu,
+              { 
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }]
+              }
+            ]}
           >
-            <TouchableOpacity className="flex-row items-center justify-between px-4 py-3">
-              <Text className="text-white text-[15px]">Privacy Policy</Text>
+            <TouchableOpacity style={styles.dropdownItem} activeOpacity={0.7}>
+              <Text style={styles.dropdownText}>Privacy Policy</Text>
               <Ionicons name="chevron-forward" size={20} color="#F1FE74" />
             </TouchableOpacity>
-            <View className="h-px bg-[#333] mx-3" />
-            <TouchableOpacity className="flex-row items-center justify-between px-4 py-3">
-              <Text className="text-white text-[15px]">Terms of Service</Text>
+            <View style={styles.dropdownDivider} />
+            <TouchableOpacity style={styles.dropdownItem} activeOpacity={0.7}>
+              <Text style={styles.dropdownText}>Terms of Service</Text>
               <Ionicons name="chevron-forward" size={20} color="#F1FE74" />
             </TouchableOpacity>
-            <View className="h-px bg-[#333] mx-3" />
-            <TouchableOpacity className="flex-row items-center justify-between px-4 py-3">
-              <Text className="text-white text-[15px]">Sign Out</Text>
+            <View style={styles.dropdownDivider} />
+            <TouchableOpacity style={styles.dropdownItem} activeOpacity={0.7}>
+              <Text style={styles.dropdownText}>Sign Out</Text>
               <Ionicons name="chevron-forward" size={20} color="#F1FE74" />
             </TouchableOpacity>
           </Animated.View>
         )}
 
-        {/* Profile Image + Info */}
-        <View className="items-center mb-5">
-          <Image
-            source={require("../assets/images/profile.png")}
-            className="w-[90px] h-[90px] rounded-full mb-3"
-          />
-          <Text className="text-white text-lg font-semibold">Arpit Aryan Gupta</Text>
-          <Text className="text-[#A3A3A3] mb-4">arpit@liyantis.com</Text>
-          <TouchableOpacity className="border border-white py-1.5 px-5 rounded-lg mt-1">
-            <Text className="text-white">Edit Profile</Text>
+        {/* Profile Info */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileIconContainer}>
+            <Ionicons name="person-circle" size={75} color="#F1FE74" />
+          </View>
+          <Text style={styles.profileName}>Arpit Aryan Gupta</Text>
+          <Text style={styles.profileEmail}>arpit@liyantis.com</Text>
+          <TouchableOpacity style={styles.editButton} activeOpacity={0.7}>
+            <Text style={styles.editButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
         {/* Stats */}
-        <View className="flex-row justify-around px-8 mb-6 mt-2.5">
-          <View className="items-center">
-            <Text className="text-white text-[22px] font-semibold">42</Text>
-            <Text className="text-[#A3A3A3] mt-1">Projects Analyzed</Text>
+        <View style={styles.statsSection}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>42</Text>
+            <Text style={styles.statLabel}>Projects Created</Text>
           </View>
-          <View className="items-center">
-            <Text className="text-white text-[22px] font-semibold">7</Text>
-            <Text className="text-[#A3A3A3] mt-1">Pinned Projects</Text>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>7</Text>
+            <Text style={styles.statLabel}>Sold Projects</Text>
           </View>
         </View>
 
         {/* Menu Cards */}
-        <View className="flex-row bg-[#1B1D27] p-4 mx-5 rounded-xl items-center mb-4">
-          <View className="w-[38px] h-[38px] bg-[#F1FE74] rounded-[10px] justify-center items-center mr-4">
-            <Ionicons name="heart" size={22} color="#000" />
-          </View>
-          <Text className="flex-1 text-white text-base">Saved Projects</Text>
-          <Ionicons name="chevron-forward" size={22} color="#F1FE74" />
+        <View style={styles.menuSection}>
+          <MenuCard icon={<Ionicons name="heart" size={22} color="#000" />} title="Saved Projects" />
+          <MenuCard icon={<Ionicons name="headset-outline" size={22} color="#000" />} title="Contact Support" />
+          <MenuCard icon={<Ionicons name="settings-outline" size={22} color="#000" />} title="App Settings" />
         </View>
-
-        <View className="flex-row bg-[#1B1D27] p-4 mx-5 rounded-xl items-center mb-4">
-          <View className="w-[38px] h-[38px] bg-[#F1FE74] rounded-[10px] justify-center items-center mr-4">
-            <Ionicons name="headset-outline" size={22} color="#000" />
-          </View>
-          <Text className="flex-1 text-white text-base">Contact Support</Text>
-          <Ionicons name="chevron-forward" size={22} color="#F1FE74" />
-        </View>
-
-        <View className="flex-row bg-[#1B1D27] p-4 mx-5 rounded-xl items-center mb-4">
-          <View className="w-[38px] h-[38px] bg-[#F1FE74] rounded-[10px] justify-center items-center mr-4">
-            <Ionicons name="settings-outline" size={22} color="#000" />
-          </View>
-          <Text className="flex-1 text-white text-base">App Settings</Text>
-          <Ionicons name="chevron-forward" size={22} color="#F1FE74" />
-        </View>
-
-        <View className="h-24" />
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <View className="absolute bottom-0 left-0 right-0 h-[75px] bg-[#1A1C20] flex-row justify-around items-center rounded-t-[20px]">
-        <TouchableOpacity onPress={() => router.push("/home")}>
-          <Ionicons name="home-outline" size={24} color="#fff" />
+      <View style={styles.bottomNav}>
+        <TouchableOpacity onPress={() => router.push("/home")} style={styles.navItem}>
+          <Image 
+            source={require("../assets/images/Home_fill.png")} 
+            style={{ width: 26, height: 26 }}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
-
-        <TouchableOpacity>
-          <Feather name="file-text" size={23} color="#fff" />
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="heart-outline" size={26} color="#fff" />
         </TouchableOpacity>
-
-        <TouchableOpacity className="w-10 h-10 rounded-full bg-[#F1FE74] justify-center items-center">
-          <Text className="text-[22px] text-black -mt-0.5">+</Text>
+        <TouchableOpacity 
+          style={styles.addButton}
+          activeOpacity={0.9}
+          onPress={() => router.push("/form1")}
+        >
+          <Ionicons name="add-circle" size={56} color="#F1FE74" />
         </TouchableOpacity>
-
-        <TouchableOpacity>
-          <Feather name="search" size={23} color="#fff" />
+        <TouchableOpacity style={styles.navItem}>
+          <Ionicons name="document-text-outline" size={24} color="#fff" />
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/Profile")}>
+        <TouchableOpacity onPress={() => router.push("/Profile")} style={styles.navItem}>
           <Ionicons name="person-circle-outline" size={28} color="#fff" />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#181A20',
+    paddingTop: 50,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  backButton: {
+    padding: 4,
+  },
+  headerTitleContainer: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 20, // Increased from 18 to 20
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  menuButton: {
+    padding: 4,
+  },
+  scrollContent: {
+    paddingBottom: 20, // Reduced from 100 to 20
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    right: 16,
+    top: 10,
+    backgroundColor: '#1B1D27',
+    paddingVertical: 4,
+    width: 190,
+    borderRadius: 12,
+    zIndex: 50,
+    borderWidth: 1,
+    borderColor: '#374151',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  dropdownText: {
+    color: 'white',
+    fontSize: 15,
+  },
+  dropdownDivider: {
+    height: 1,
+    backgroundColor: '#333',
+    marginHorizontal: 12,
+  },
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 16, // Reduced from 24 to 16
+    marginTop: 20, // Reduced from 47 to 20
+  },
+  profileIconContainer: {
+    marginBottom: 8, // Reduced from 12 to 8
+  },
+  profileName: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  profileEmail: {
+    color: '#A3A3A3',
+    marginBottom: 18, // Increased from 12 to 18 for more spacing before Edit Profile button
+    fontSize: 14,
+  },
+  editButton: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  editButtonText: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  statsSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 32,
+    marginBottom: 20, // Increased from 4 to 20 to add spacing before menu cards
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    color: 'white',
+    fontSize: 23, // Changed from 24 to 23
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    color: '#A3A3A3',
+    marginTop: 4,
+    fontSize: 14, // Reduced from 16 to 14
+    letterSpacing: 1,
+    // Removed textTransform: 'uppercase' to allow normal case
+  },
+  menuSection: {
+    paddingBottom: 20, // Reduced from 40 to 20
+  },
+  menuCard: {
+    flexDirection: 'row',
+    backgroundColor: '#27292D', // Changed from #1B1D27 to #27292D
+    padding: 12, // Reduced from 16 to 12
+    marginHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 19, // Restored to 19px spacing between boxes
+  },
+  menuIconContainer: {
+    width: 38,
+    height: 38,
+    backgroundColor: '#F1FE74',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  menuCardText: {
+    flex: 1,
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 75, // Changed from 85 to 75 to match home page
+    backgroundColor: '#27292D', // Changed to match home page
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center', // Changed from flex-start to center to match home page
+    borderTopLeftRadius: 20, // Changed from 30 to 20 to match home page
+    borderTopRightRadius: 20, // Changed from 30 to 20 to match home page
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  navItem: {
+    alignItems: 'center',
+    // Removed fixed width to match home page spacing
+  },
+  addButton: {
+    width: 56, // Changed back to 56 to match home page
+    height: 56, // Changed back to 56 to match home page
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    marginBottom: 12, // 12px spacing between "Add Project" and "Project Name"
+    marginBottom: 6, // Reduced from 12 to 6 to bring header closer to content
   },
   backButton: {
     padding: 4,
@@ -467,12 +467,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16, // 16px left and right margins
-    paddingVertical: 15, // Keep vertical padding
+    paddingVertical: 25, // Increased from 15 to 25 to move content down
     paddingBottom: 40, // Normal padding since button is now in scroll content
     alignItems: 'center', // Center all content in the scroll view
   },
   fieldContainer: {
-    marginBottom: 18, // Reduced from 23px to 18px spacing between fields
+    marginBottom: 12, // Reverted back from 6px to 12px
     alignItems: 'center', // Center all fields
   },
   row: {
@@ -488,18 +488,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
     fontWeight: '400',
-    marginBottom: 12, // 12px spacing between label and input box
+    marginBottom: 8, // Changed from 4 to 8px gap between project name and box
     alignSelf: 'flex-start', // Align labels to the left of their containers
   },
   labelRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 4,
-    marginBottom: 12, // 12px spacing between label and input box
+    marginBottom: 4, // Reverted back from 1px to 4px
     alignSelf: 'flex-start', // Align label row to the left
   },
   statusIcon: {
-    marginTop: 1.25, // Adjusted up by 0.25 from 1.5
+    marginTop: 2, // Increased from 1.25 to 2 to move icon down
   },
   input: {
     height: 48,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
   },
   statusButtonText: {
-    fontSize: 13,
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
     fontWeight: '500',
   },

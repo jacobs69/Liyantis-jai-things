@@ -468,7 +468,7 @@ const ALL_PROPERTIES = [
 ];
 
 const COLORS = {
-  bg: "#101010",        // Deep dark background
+  bg: "#181A20",        // Updated to match forms background
   cardBg: "#1C1C1E",    // Search bar/Input background
   primary: "#DFFF4F",   // The Lime Yellow accent
   textWhite: "#FFFFFF",
