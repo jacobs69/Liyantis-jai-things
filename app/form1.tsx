@@ -145,23 +145,95 @@ export default function AddProjectScreen() {
   const router = useRouter();
 
   // Form State
-  const [projectName, setProjectName] = useState("The Weave");
-  const [developer, setDeveloper] = useState("Al Ghurair");
-  const [location, setLocation] = useState("AL Jumeriah Village Circle");
+  const [projectName, setProjectName] = useState("");
+  const [developer, setDeveloper] = useState("");
+  const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("Apartment");
-  const [bedrooms, setBedrooms] = useState("1");
-  const [status, setStatus] = useState("Off-Plan");
+  const [bedrooms, setBedrooms] = useState("");
+  const [status, setStatus] = useState("");
   const [currency, setCurrency] = useState("AED");
-  const [price, setPrice] = useState("1,225,600.00");
-  const [areaFt, setAreaFt] = useState("776.00");
-  const [areaM, setAreaM] = useState("72.09");
-  const [dld, setDld] = useState("4");
-  const [serviceCharge, setServiceCharge] = useState("11");
+  const [price, setPrice] = useState("");
+  const [areaFt, setAreaFt] = useState("");
+  const [areaM, setAreaM] = useState("");
+  const [dld, setDld] = useState("");
+  const [serviceCharge, setServiceCharge] = useState("");
 
   // Modal Visibility State
   const [showDevelopers, setShowDevelopers] = useState(false);
   const [showTypes, setShowTypes] = useState(false);
   const [showCurrencies, setShowCurrencies] = useState(false);
+
+  // Validation State
+  const [errors, setErrors] = useState({
+    projectName: false,
+    developer: false,
+    location: false,
+    bedrooms: false,
+    status: false,
+    price: false,
+    areaFt: false,
+    areaM: false,
+    dld: false,
+    serviceCharge: false,
+  });
+  const [showErrors, setShowErrors] = useState(false);
+
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {
+      projectName: !projectName.trim(),
+      developer: !developer.trim(),
+      location: !location.trim(),
+      bedrooms: !bedrooms.trim(),
+      status: !status.trim(),
+      price: !price.trim(),
+      areaFt: !areaFt.trim(),
+      areaM: !areaM.trim(),
+      dld: !dld.trim(),
+      serviceCharge: !serviceCharge.trim(),
+    };
+
+    setErrors(newErrors);
+    setShowErrors(true);
+
+    // Check if any field has errors
+    return !Object.values(newErrors).some(error => error);
+  };
+
+  // Handle next button press
+  const handleNext = () => {
+    if (validateForm()) {
+      router.push('/form2');
+    }
+  };
+
+  // Get error message for each field
+  const getErrorMessage = (field: string) => {
+    if (!showErrors || !errors[field as keyof typeof errors]) return '';
+    
+    switch (field) {
+      case 'projectName':
+        return '(Name required)';
+      case 'developer':
+        return '(Developer required)';
+      case 'location':
+        return '(Location required)';
+      case 'bedrooms':
+        return '(Select bedrooms)';
+      case 'status':
+        return '(Select status)';
+      case 'price':
+        return '(Price required)';
+      case 'areaFt':
+      case 'areaM':
+        return '(Area required)';
+      case 'dld':
+      case 'serviceCharge':
+        return '(This field is required)';
+      default:
+        return '';
+    }
+  };
 
 
 
@@ -200,9 +272,16 @@ export default function AddProjectScreen() {
           
           {/* Project Name */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Project Name</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Project Name</Text>
+              {errors.projectName && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+            </View>
             <TextInput 
-              style={[styles.input, styles.inputFullWidth]}
+              style={[
+                styles.input, 
+                styles.inputFullWidth,
+                errors.projectName && showErrors && styles.inputError
+              ]}
               value={projectName}
               onChangeText={setProjectName}
               placeholderTextColor={COLORS.textGrey}
@@ -211,14 +290,24 @@ export default function AddProjectScreen() {
 
           {/* Developer Dropdown */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Developer</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Developer</Text>
+              {errors.developer && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+            </View>
             <TouchableOpacity 
-              style={[styles.dropdownButton, styles.dropdownFullWidth]}
+              style={[
+                styles.dropdownButton, 
+                styles.dropdownFullWidth,
+                errors.developer && showErrors && styles.inputError
+              ]}
               onPress={() => setShowDevelopers(true)}
               activeOpacity={0.7}
             >
-              <Text style={styles.inputText} numberOfLines={1}>
-                {developer}
+              <Text style={[
+                styles.inputText,
+                !developer && { color: COLORS.textGrey }
+              ]} numberOfLines={1}>
+                {developer || 'Select Developer'}
               </Text>
               <Ionicons name="chevron-down" size={20} color={COLORS.textGrey} />
             </TouchableOpacity>
@@ -226,13 +315,22 @@ export default function AddProjectScreen() {
 
           {/* Location */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Location</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Location</Text>
+              {errors.location && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+            </View>
             <View style={styles.inputWrapper}>
               <TextInput 
-                style={[styles.input, styles.inputFullWidth, { paddingRight: 40 }]}
+                style={[
+                  styles.input, 
+                  styles.inputFullWidth, 
+                  { paddingRight: 40 },
+                  errors.location && showErrors && styles.inputError
+                ]}
                 value={location}
                 onChangeText={setLocation}
                 placeholderTextColor={COLORS.textGrey}
+                placeholder="Enter location"
               />
               <View style={styles.inputIconContainer}>
                 <Ionicons name="search" size={18} color={COLORS.textGrey} />
@@ -243,7 +341,9 @@ export default function AddProjectScreen() {
           {/* Type & Bedrooms Row */}
           <View style={styles.row}>
             <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Type</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Type</Text>
+              </View>
               <TouchableOpacity 
                 style={[styles.dropdownButton, styles.dropdownType]}
                 onPress={() => setShowTypes(true)}
@@ -256,13 +356,21 @@ export default function AddProjectScreen() {
               </TouchableOpacity>
             </View>
             <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Bedrooms</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Bedrooms</Text>
+                {errors.bedrooms && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+              </View>
               <TextInput 
-                style={[styles.input, styles.inputBedroom]}
+                style={[
+                  styles.input, 
+                  styles.inputBedroom,
+                  errors.bedrooms && showErrors && styles.inputError
+                ]}
                 value={bedrooms}
                 onChangeText={setBedrooms}
                 placeholderTextColor={COLORS.textGrey}
                 keyboardType="numeric"
+                placeholder="0"
               />
             </View>
           </View>
@@ -272,6 +380,7 @@ export default function AddProjectScreen() {
             <View style={styles.labelRow}>
               <Text style={styles.label}>Status</Text>
               <Ionicons name="information-circle-outline" size={14} color={COLORS.textGrey} style={styles.statusIcon} />
+              {errors.status && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
             </View>
             <View style={styles.statusButtonRow}>
               {['Off-Plan', 'Off-Resale', 'Secondary'].map((s) => (
@@ -281,7 +390,8 @@ export default function AddProjectScreen() {
                   activeOpacity={0.8}
                   style={[
                     styles.statusButton,
-                    status === s ? styles.statusButtonActive : styles.statusButtonInactive
+                    status === s ? styles.statusButtonActive : styles.statusButtonInactive,
+                    errors.status && showErrors && !status && styles.inputError
                   ]}
                 >
                   <Text style={[
@@ -298,84 +408,125 @@ export default function AddProjectScreen() {
           {/* Currency & Price Row */}
           <View style={styles.row}>
             <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Currency</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Currency</Text>
+              </View>
               <TouchableOpacity 
                 style={[styles.dropdownButton, styles.dropdownCurrency]}
                 onPress={() => setShowCurrencies(true)}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.inputText, { fontWeight: '600' }]} numberOfLines={1}>
+                <Ionicons name="chevron-down" size={18} color={COLORS.textGrey} />
+                <Text style={[styles.inputText, { fontWeight: '600', marginLeft: 4 }]} numberOfLines={1}>
                   {currency}
                 </Text>
-                <Ionicons name="chevron-down" size={18} color={COLORS.textGrey} />
               </TouchableOpacity>
             </View>
             <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Price</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Price</Text>
+                {errors.price && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+              </View>
               <TextInput 
-                style={[styles.input, styles.inputPrice, { 
-                  textAlign: 'right', 
-                  fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' 
-                }]}
+                style={[
+                  styles.input, 
+                  styles.inputPrice, 
+                  { 
+                    textAlign: 'right', 
+                    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' 
+                  },
+                  errors.price && showErrors && styles.inputError
+                ]}
                 value={price}
                 onChangeText={setPrice}
                 placeholderTextColor={COLORS.textGrey}
                 keyboardType="numeric"
+                placeholder="0.00"
               />
             </View>
           </View>
 
           {/* Area Row */}
           <View style={styles.row}>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Area (ft²)</Text>
+            <View style={[styles.fieldContainer, { alignItems: 'flex-start' }]}>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Area (ft²)</Text>
+                {errors.areaFt && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+              </View>
               <TextInput 
-                style={[styles.input, styles.inputAreaFt]}
+                style={[
+                  styles.input, 
+                  styles.inputAreaFt,
+                  errors.areaFt && showErrors && styles.inputError
+                ]}
                 value={areaFt}
                 onChangeText={setAreaFt}
                 placeholderTextColor={COLORS.textGrey}
                 keyboardType="numeric"
+                placeholder="0.00"
               />
             </View>
-            <View style={styles.fieldContainer}>
-              <Text style={styles.label}>Area (m²)</Text>
+            <View style={[styles.fieldContainer, { alignItems: 'flex-start' }]}>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Area (m²)</Text>
+              </View>
               <TextInput 
-                style={[styles.input, styles.inputAreaM]}
+                style={[
+                  styles.input, 
+                  styles.inputAreaM
+                ]}
                 value={areaM}
                 onChangeText={setAreaM}
                 placeholderTextColor={COLORS.textGrey}
                 keyboardType="numeric"
+                placeholder="0.00"
               />
             </View>
           </View>
 
           {/* DLD */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>DLD (%)</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>DLD (%)</Text>
+              {errors.dld && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+            </View>
             <TextInput 
-              style={[styles.input, styles.inputFullWidth]}
+              style={[
+                styles.input, 
+                styles.inputFullWidth,
+                errors.dld && showErrors && styles.inputError
+              ]}
               value={dld}
               onChangeText={setDld}
               placeholderTextColor={COLORS.textGrey}
               keyboardType="numeric"
+              placeholder="0"
             />
           </View>
 
           {/* Service Charges */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Service Charges/ft²</Text>
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Service Charges/ft²</Text>
+              {errors.serviceCharge && showErrors && <Text style={styles.requiredAsterisk}>*</Text>}
+            </View>
             <TextInput 
-              style={[styles.input, styles.inputFullWidth]}
+              style={[
+                styles.input, 
+                styles.inputFullWidth,
+                errors.serviceCharge && showErrors && styles.inputError
+              ]}
               value={serviceCharge}
               onChangeText={setServiceCharge}
               placeholderTextColor={COLORS.textGrey}
               keyboardType="numeric"
+              placeholder="0"
             />
           </View>
 
           {/* Next Button - Now part of scroll content */}
           <View style={styles.nextButtonContainer}>
-            <TouchableOpacity style={styles.nextButton} onPress={() => router.push('/form2')}>
+            <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
               <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
           </View>
@@ -480,8 +631,8 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     justifyContent: 'space-between', // Align to edges
     alignItems: 'flex-start',
-    width: 330, // Changed from 343 to 330 to match form3 top boxes
-    gap: 9, // Add 9px spacing between boxes
+    width: 320, // Reduced from 330 to ensure content fits
+    gap: 10, // Reverted back to original gap
   },
   label: {
     color: '#F5F5F5',
@@ -493,10 +644,11 @@ const styles = StyleSheet.create({
   },
   labelRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 4,
-    marginBottom: 4, // Reverted back from 1px to 4px
+    marginBottom: 4,
     alignSelf: 'flex-start', // Align label row to the left
+    width: '100%', // Ensure full width for proper alignment
   },
   statusIcon: {
     marginTop: 2, // Increased from 1.25 to 2 to move icon down
@@ -515,28 +667,28 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   inputFullWidth: {
-    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    width: 320, // Reduced from 330 to match new row width
   },
   inputType: {
-    width: 160.5, // Adjusted for 330px total width with 9px gap: (330-9)/2 = 160.5
+    width: 155, // Reverted back to original size
     marginRight: 0, // Remove margin since we're using gap
   },
   inputBedroom: {
-    width: 160.5, // Match Type box width for perfect alignment
+    width: 155, // Reverted back to original size
   },
   inputCurrency: {
-    width: 160.5, // Adjusted for symmetry: (330-9)/2 = 160.5
+    width: 100, // Reduced currency box width
     marginRight: 0, // Remove margin since we're using gap
   },
   inputPrice: {
-    width: 160.5, // Match currency box width for perfect alignment
+    width: 210, // Increased price box width (320 - 100 - 10 = 210)
   },
   inputAreaFt: {
-    width: 160.5, // Adjusted for symmetry
+    width: 155, // Reduced from 160.5 to ensure both boxes fit
     marginRight: 0, // Remove margin since we're using gap
   },
   inputAreaM: {
-    width: 160.5, // Adjusted for symmetry
+    width: 155, // Reverted back to original size
   },
   inputText: {
     color: '#F5F5F5',
@@ -558,15 +710,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dropdownFullWidth: {
-    width: 330, // Changed from 343 to 330 to match form3 top boxes
+    width: 320, // Reduced to match new container width
   },
   dropdownType: {
     width: 160.5, // Adjusted for symmetry with 9px gap: (330-9)/2 = 160.5
     marginRight: 0, // Remove margin since we're using gap
   },
   dropdownCurrency: {
-    width: 160.5, // Adjusted to match: (330-9)/2 = 160.5
+    width: 100, // Updated to match new currency box size
     marginRight: 0, // Remove margin since we're using gap
+    justifyContent: 'flex-start', // Align content to the left
+    paddingHorizontal: 8, // Reduced padding for smaller box
   },
   inputWrapper: {
     position: 'relative',
@@ -581,10 +735,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     justifyContent: 'flex-start', // Changed from center to flex-start to align left like Type box
-    width: 330, // Set total width to match location box
+    width: 320, // Reduced to match new container width
   },
   statusButton: {
-    width: 104, // Adjusted so 3 buttons + 2 gaps (8px each) = 330px: (330-16)/3 = 104.67 ≈ 104
+    width: 101, // Adjusted for new total width: (320-16)/3 = 101.33 ≈ 101
     height: 48,
     borderRadius: 10,
     alignItems: 'center',
@@ -684,5 +838,38 @@ const styles = StyleSheet.create({
   },
   modalItemTextSelected: {
     color: '#60A5FA',
+  },
+  // Error Styles
+  inputError: {
+    borderColor: '#FF4444',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#FF4444',
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+    marginTop: 4,
+    alignSelf: 'flex-start',
+  },
+  errorTextInline: {
+    color: '#FF4444',
+    fontSize: 12, // Reduced from 14 to 12 for smaller text
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+    marginLeft: 8,
+  },
+  errorTextInlineSmall: {
+    color: '#FF4444',
+    fontSize: 10, // Even smaller for bedrooms and area
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+    marginLeft: 8,
+  },
+  requiredAsterisk: {
+    color: '#FF4444',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginLeft: 4,
   },
 });
