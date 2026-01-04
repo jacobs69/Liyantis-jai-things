@@ -69,6 +69,10 @@ export default function PaymentDetailsScreen() {
   const [flipAt, setFlipAt] = useState("35%");
   const [handoverAt, setHandoverAt] = useState("70%");
   
+  // Validation states
+  const [flipAtError, setFlipAtError] = useState(false);
+  const [percentageError, setPercentageError] = useState(false);
+  
   const [installments, setInstallments] = useState([
     { id: 1, displayId: "1", month: 'Nov', year: '2025', percent: 5, type: 'Down Payment' },
     { id: 2, displayId: "2", month: 'Nov', year: '2025', percent: 30, type: 'During Construction' },
@@ -86,7 +90,43 @@ export default function PaymentDetailsScreen() {
 
   const totalCount = installments.length;
 
+  // --- Validation Functions ---
+  const validateFlipAt = (flipValue: string, handoverValue: string) => {
+    const flipNum = parseFloat(flipValue.replace('%', ''));
+    const handoverNum = parseFloat(handoverValue.replace('%', ''));
+    return flipNum >= handoverNum;
+  };
+
+  const validatePercentage = (total: number) => {
+    return total > 100;
+  };
+
+  // Update validation states when values change
+  React.useEffect(() => {
+    setFlipAtError(validateFlipAt(flipAt, handoverAt));
+  }, [flipAt, handoverAt]);
+
+  React.useEffect(() => {
+    setPercentageError(validatePercentage(totalPercent));
+  }, [totalPercent]);
+
   // --- Handlers ---
+  const handleFlipAtChange = (text: string) => {
+    // Remove any existing % signs
+    let cleanText = text.replace(/%/g, '');
+    // Add % symbol automatically
+    const displayValue = cleanText ? `${cleanText}%` : '';
+    setFlipAt(displayValue);
+  };
+
+  const handleHandoverAtChange = (text: string) => {
+    // Remove any existing % signs
+    let cleanText = text.replace(/%/g, '');
+    // Add % symbol automatically
+    const displayValue = cleanText ? `${cleanText}%` : '';
+    setHandoverAt(displayValue);
+  };
+
   const addInstallment = () => {
     const newId = installments.length > 0 ? Math.max(...installments.map(i => i.id)) + 1 : 1;
     const nextDisplayId = String(installments.length + 1);
@@ -179,10 +219,10 @@ export default function PaymentDetailsScreen() {
                   <View style={styles.labelRow}>
                     <Text style={styles.label}>Flip At</Text>
                   </View>
-                  <View style={styles.flipAtInputWrapper}>
+                  <View style={[styles.flipAtInputWrapper, flipAtError && styles.inputError]}>
                     <TextInput
                       value={String(flipAt)}
-                      onChangeText={setFlipAt}
+                      onChangeText={handleFlipAtChange}
                       style={styles.flipAtInput}
                       placeholderTextColor={COLORS.textGrey}
                       keyboardType="numeric"
@@ -191,6 +231,7 @@ export default function PaymentDetailsScreen() {
                       editable={true}
                     />
                   </View>
+                  {flipAtError && <Text style={styles.errorTextBelow}>(Cannot be &gt; handover)</Text>}
                 </View>
               </View>
               <View style={styles.flipAtContainer}>
@@ -201,7 +242,7 @@ export default function PaymentDetailsScreen() {
                   <View style={styles.handoverInputWrapper}>
                     <TextInput
                       value={String(handoverAt)}
-                      onChangeText={setHandoverAt}
+                      onChangeText={handleHandoverAtChange}
                       style={styles.handoverAtInput}
                       placeholderTextColor={COLORS.textGrey}
                       keyboardType="numeric"
@@ -372,6 +413,11 @@ export default function PaymentDetailsScreen() {
               <Text style={styles.emptyText}>
                 No installments added. Tap + to start.
               </Text>
+            )}
+            
+            {/* Percentage Error Message - appears after last installment */}
+            {percentageError && installments.length > 0 && (
+              <Text style={styles.percentageErrorTextEnd}>(percentage must be equal to 100%)</Text>
             )}
           </View>
 
@@ -582,6 +628,42 @@ const styles = StyleSheet.create({
     width: 160.5, // Adjusted for 330px total width with 9px gap: (330-9)/2 = 160.5
     height: 48,
     paddingHorizontal: 16,
+  },
+  inputError: {
+    borderColor: '#FF453A',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#FF453A',
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+  },
+  errorTextBelow: {
+    color: '#FF453A',
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+    textAlign: 'left',
+    marginTop: 4,
+  },
+  percentageErrorText: {
+    color: '#FF453A',
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  percentageErrorTextEnd: {
+    color: '#FF453A',
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    fontWeight: '400',
+    textAlign: 'left',
+    marginTop: 8,
+    marginLeft: 50, // Align with the installment content
   },
   handoverInputWrapper: {
     position: 'relative',
